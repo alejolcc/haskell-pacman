@@ -3,6 +3,7 @@ module State where
 import Types
 import qualified Pacman
 import qualified Ghost
+import Graphics.Gloss.Interface.IO.Game
 
 testdungeon :: Dungeon
 testdungeon = reverse [[Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall],[Wall,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Wall,Wall,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Wall],[Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall],[Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall],[Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall],[Wall,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Wall,Wall,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Wall],[Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall],[Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall],[Wall,Pill,Pill,Pill,Pill,Pill,Pill,Wall,Wall,Pill,Pill,Pill,Pill,Wall,Wall,Pill,Pill,Pill,Pill,Wall,Wall,Pill,Pill,Pill,Pill,Pill,Pill,Wall],[Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Empty,Wall,Wall,Empty,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall],[Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Empty,Wall,Wall,Empty,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall],[Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall],[Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall],[Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall],[Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill],[Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall]]
@@ -39,15 +40,9 @@ initialState = Game
 --------------------
 
 -- updatePacman :: GameState -> GameState
--- updatePacman game = updatePacmanPos . updatePacmanMov . updateMouth $ game
+-- updatePacman game = updatePacmanPos . updatePacmanMov $ game
 
--- --TODO: Move mouth state of pacman, to pacman module
--- updateMouth :: GameState -> GameState
--- updateMouth game = game'
---     where
---     mouth = pacmanMounth game
---     mouth' = if mouth == 4 then 0 else mouth + 1
---     game' = game {pacmanMounth = mouth'}
+
 
 -- updatePacmanMov :: GameState -> GameState
 -- updatePacmanMov game = newState
@@ -103,38 +98,36 @@ initialState = Game
 -- --------------------------------------------------------------------------------
 
 
--- printState :: GameState -> IO GameState
--- printState game = do 
---                     putStrLn $ show game
---                     return game
+printState :: GameState -> IO GameState
+printState game = do
+                    putStrLn $ show game
+                    return game
 
 
--- handleKeys :: Event -> GameState -> IO GameState
--- handleKeys (EventKey (SpecialKey KeyUp) Down _ _) game = return game {bufferMov = U}
--- handleKeys (EventKey (SpecialKey KeyDown) Down _ _) game = return game {bufferMov = D}
--- handleKeys (EventKey (SpecialKey KeyLeft) Down _ _) game = return game {bufferMov = L}
--- handleKeys (EventKey (SpecialKey KeyRight) Down _ _) game = return game {bufferMov = R}
+handleKeys :: Event -> GameState -> IO GameState
+handleKeys (EventKey (SpecialKey KeyUp) Down _ _) game = return game {bufferMov = U}
+handleKeys (EventKey (SpecialKey KeyDown) Down _ _) game = return game {bufferMov = D}
+handleKeys (EventKey (SpecialKey KeyLeft) Down _ _) game = return game {bufferMov = L}
+handleKeys (EventKey (SpecialKey KeyRight) Down _ _) game = return game {bufferMov = R}
 
--- handleKeys _ game = return game
-    
-
+handleKeys _ game = return game
 
 
 
 
-eatPill :: Dungeon -> Pos -> Dungeon
-eatPill dg p = newdg
-    where
-    (x, y) = p
-    row = dg !! y
-    newRow = replace row x Empty
-    newdg = replace dg y newRow
+-- eatPill :: Dungeon -> Pos -> Dungeon
+-- eatPill dg p = newdg
+--     where
+--     (x, y) = p
+--     row = dg !! y
+--     newRow = replace row x Empty
+--     newdg = replace dg y newRow
 
 
 
 -- -- Aux
-replace :: [a] -> Int -> a -> [a]
-replace xs pos newVal = take pos xs ++ newVal : drop (pos+1) xs
+-- replace :: [a] -> Int -> a -> [a]
+-- replace xs pos newVal = take pos xs ++ newVal : drop (pos+1) xs
             
 -- -- get the space inside of dungeon
 -- getSpace :: Dungeon -> Pos -> Space

@@ -17,7 +17,6 @@ initialGhost = Ghost
     direction = S
   }
 
-  
 setPosition :: Ghost -> Pos -> Ghost
 setPosition ghost pos = ghost {position=pos}
 

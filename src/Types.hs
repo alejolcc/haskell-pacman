@@ -5,5 +5,3 @@ data Space = Pill | Empty | Wall deriving (Show, Eq)
 
 type Pos = (Int, Int) 
 type Dungeon = [[Space]]
-  
-  
