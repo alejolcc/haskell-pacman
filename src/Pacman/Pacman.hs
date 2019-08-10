@@ -1,11 +1,11 @@
 module Pacman where
 
-import Types
+import Constants
 
 data Pacman = Pacman
   {
     location :: (Float, Float), -- The position on the canvas
-    position :: Pos,           -- The box on the dungeon
+    position :: (Int, Int),     -- The box on the dungeon
     speed :: Float,
     mouth :: Int,
     direction :: Movement
@@ -15,16 +15,15 @@ data Pacman = Pacman
 initialPacman :: Pacman
 initialPacman = Pacman
   {
-    location = (15, 0),
+    location = (0, 0),
     position = (1, 1),
     speed = 10,
     mouth = 1,
     direction = S
   }
 
--- TODO: Add velocity logic
 movePacman :: Pacman -> Movement -> Pacman
-movePacman pm pos = pm {location=loc}
+movePacman pm pos = updateMouth(pm {location=loc, position=toDungeon(loc)})
   where
     (x, y) = location pm
     speedPm = speed pm
@@ -35,7 +34,7 @@ movePacman pm pos = pm {location=loc}
       R -> (x+speedPm, y)
       S -> (x, y)
 
-setPosition :: Pacman -> Pos -> Pacman
+setPosition :: Pacman -> (Int, Int) -> Pacman
 setPosition pm pos = pm {position=pos}
 
 setDirection :: Pacman -> Movement -> Pacman

@@ -17,7 +17,7 @@ executable haskell-pacman
   main-is:             Main.hs
 
   --other-modules:      Canvas, Types, State, Pacman, Ghost
-  other-modules:      State, Types, Pacman, Ghost, Canvas Constants PacmanCanvas
+  other-modules:      State, Pacman, Ghost, Canvas Constants PacmanCanvas
   -- other-extensions:
   build-depends:       base <4.13
                        ,gloss==1.13.*

@@ -1,7 +1,6 @@
 module Canvas where
 
 import State
-import Types
 import Constants
 import PacmanCanvas
 import Graphics.Gloss
@@ -13,7 +12,7 @@ window :: Display
 window = FullScreen
 
 background :: Color
-background = black
+background = white
 
 -- Draw a box with a pills | wall | empty space
 mkBox :: Space -> Picture

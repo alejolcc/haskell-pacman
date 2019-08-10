@@ -1,12 +1,11 @@
 module PacmanCanvas where
 
 import Constants
-import Types
 import Pacman
 import Graphics.Gloss
 
 pacmanSize :: Float
-pacmanSize = widthBox / 2
+pacmanSize = widthBox / 2 - 2
 
 pacmanPlayer :: Int -> Picture
 pacmanPlayer 1 = Color yellow $ arcSolid 45 315 pacmanSize

@@ -1,7 +1,6 @@
 module GhostCanvas where
 
 import Constants
-import Types
 import Ghost
 import Graphics.Gloss
 

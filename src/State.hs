@@ -1,6 +1,6 @@
 module State where
 
-import Types
+import Constants
 import qualified Pacman
 import qualified Ghost
 import Graphics.Gloss.Interface.IO.Game
@@ -91,21 +91,21 @@ updateDir game mov = game {pacman=pacman'}
 --     newDg = eatPill dg newPos
 
 -- -- Validate next move
--- validateMov :: Pos -> Dungeon -> Movement -> Bool
+-- validateMov :: (Int, Int) -> Dungeon -> Movement -> Bool
 -- validateMov pos dg mov = valid 
 --     where 
 --     (x, y) = updatePos pos mov
 --     valid = elem (x, y) $ getValidPos dg
 
 -- -- Update a player position
--- updatePos :: Pos -> Movement -> Pos
--- updatePos (0, 1) L = (27, 1) 
--- updatePos (27, 1) R = (0, 1) 
--- updatePos (x, y) U = (x, y+1) 
--- updatePos (x, y) D = (x, y-1) 
--- updatePos (x, y) L = (x-1, y) 
--- updatePos (x, y) R = (x+1, y) 
--- updatePos (x, y) _ = (x, y) 
+-- updatePos :: (Int, Int) -> Movement -> Pos
+-- updatePos (0, 1) L = (27, 1)
+-- updatePos (27, 1) R = (0, 1)
+-- updatePos (x, y) U = (x, y+1)
+-- updatePos (x, y) D = (x, y-1)
+-- updatePos (x, y) L = (x-1, y)
+-- updatePos (x, y) R = (x+1, y)
+-- updatePos (x, y) _ = (x, y)
 
 -- --------------------------------------------------------------------------------
 
@@ -114,7 +114,7 @@ updateDir game mov = game {pacman=pacman'}
 
 
 
--- eatPill :: Dungeon -> Pos -> Dungeon
+-- eatPill :: Dungeon -> (Int, Int) -> Dungeon
 -- eatPill dg p = newdg
 --     where
 --     (x, y) = p
@@ -127,15 +127,15 @@ updateDir game mov = game {pacman=pacman'}
 -- -- Aux
 -- replace :: [a] -> Int -> a -> [a]
 -- replace xs pos newVal = take pos xs ++ newVal : drop (pos+1) xs
-            
+
 -- -- get the space inside of dungeon
--- getSpace :: Dungeon -> Pos -> Space
+-- getSpace :: Dungeon -> (Int, Int) -> Space
 -- getSpace xs (px, py) =
 --     xs !! py !! px
 
 -- getDungeonSize :: Dungeon -> (Int, Int)
 -- getDungeonSize dg = (w-1, h-1)
---     where 
+--     where
 --     w = length $ dg !! 0
 --     h = length dg
 
@@ -147,9 +147,9 @@ updateDir game mov = game {pacman=pacman'}
 --     posiblePos = [(x, y) | x <- [0..w], y <- [0..h]]
 --     valid = \pos -> Pill == (getSpace dg pos) || Empty == (getSpace dg pos)
 --     res = filter valid posiblePos
-    
+
 -- ghostSt :: Int -> GameState -> Ghost
 -- ghostSt n game = ghost
 --     where
---     gSt = ghosts game 
---     ghost = gSt !! n 
+--     gSt = ghosts game
+--     ghost = gSt !! n

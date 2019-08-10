@@ -1,11 +1,11 @@
 module Ghost where
 
-import Types
+import Constants
 
 
 data Ghost = Ghost
   {
-    position :: Pos,
+    position :: (Int, Int),
     direction :: Movement
   } deriving Show
 
@@ -17,7 +17,7 @@ initialGhost = Ghost
     direction = S
   }
 
-setPosition :: Ghost -> Pos -> Ghost
+setPosition :: Ghost -> (Int, Int) -> Ghost
 setPosition ghost pos = ghost {position=pos}
 
 setDirection :: Ghost -> Movement -> Ghost

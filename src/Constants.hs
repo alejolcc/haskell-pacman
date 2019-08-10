@@ -1,5 +1,10 @@
 module Constants where
 
+data Movement = U | D | L | R | S  deriving Show
+data Space = Pill | Empty | Wall deriving (Show, Eq)
+
+type Dungeon = [[Space]]
+
 dgPosX :: Float
 dgPosX = (-600)
 
@@ -14,3 +19,7 @@ widthBox = 30
 
 heightBox :: Float
 heightBox = 30
+
+-- Map a canvas position to dg box
+toDungeon :: (Float, Float) -> (Int, Int)
+toDungeon (x, y) = (round x `div` round widthBox, round y `div` round heightBox)
