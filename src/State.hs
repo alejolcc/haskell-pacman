@@ -19,7 +19,7 @@ data GameState = Game
 
 instance Show GameState where
   show Game{ bufferMov=mov , pacman=p, ghosts=g} =
-    show mov ++ " " ++ show p
+    "BuffMov " ++ show mov ++ " " ++ show p
 
 initialState :: GameState
 initialState = Game
@@ -35,37 +35,49 @@ initialState = Game
     ghost3 = Ghost.setPosition Ghost.initialGhost (14, 3)
     ghost4 = Ghost.setPosition Ghost.initialGhost (15, 3)
 
+updateState :: GameState -> Float -> GameState
+updateState game seconds = updatePacman game
+
+printState :: GameState -> IO GameState
+printState game = do
+                    putStrLn $ show game
+                    return game
+
+
+handleKeys :: Event -> GameState -> IO GameState
+handleKeys (EventKey (SpecialKey KeyUp) Down _ _) game = return game {bufferMov = U}
+handleKeys (EventKey (SpecialKey KeyDown) Down _ _) game = return game {bufferMov = D}
+handleKeys (EventKey (SpecialKey KeyLeft) Down _ _) game = return game {bufferMov = L}
+handleKeys (EventKey (SpecialKey KeyRight) Down _ _) game = return game {bufferMov = R}
+
+handleKeys _ game = return game
+
 --------------------
 -- Pacman updates --
 --------------------
 
--- updatePacman :: GameState -> GameState
--- updatePacman game = updatePacmanPos . updatePacmanMov $ game
+updatePacman :: GameState -> GameState
+updatePacman game = updatePacmanPos . updatePacmanDir $ game
 
+updatePacmanDir :: GameState -> GameState
+updatePacmanDir game = newState
+    where
+    next = bufferMov game
+    newState = updateDir game next
 
+updatePacmanPos :: GameState -> GameState
+updatePacmanPos game = game {pacman=pacman'}
+    where
+    pman = pacman game
+    mov = Pacman.direction $ pman
+    pacman' = Pacman.movePacman pman mov
 
--- updatePacmanMov :: GameState -> GameState
--- updatePacmanMov game = newState
---     where 
---     next = bufferMov game
---     newState = updateDir game next
-    
--- updatePacmanPos :: GameState -> GameState
--- updatePacmanPos game = newState
---     where 
---     mov = direction $ pacman game
---     newState = movePacman game mov
-
--- -- Update pacman direction
--- updateDir :: GameState -> Movement -> GameState
--- updateDir game mov = game {pacman=pacman'}
---     where
---     pman = pacman game
---     pos = position pman
---     dir = direction pman
---     dg = dungeon game
---     dir' = if validateMov pos dg mov then mov else dir
---     pacman' = setDirection pman dir' 
+-- Update pacman direction
+updateDir :: GameState -> Movement -> GameState
+updateDir game mov = game {pacman=pacman'}
+    where
+    pman = pacman game
+    pacman' = Pacman.setDirection pman mov
 
 -- -- Logic to move pacman on the dungeon
 -- movePacman :: GameState -> Movement -> GameState
@@ -98,19 +110,6 @@ initialState = Game
 -- --------------------------------------------------------------------------------
 
 
-printState :: GameState -> IO GameState
-printState game = do
-                    putStrLn $ show game
-                    return game
-
-
-handleKeys :: Event -> GameState -> IO GameState
-handleKeys (EventKey (SpecialKey KeyUp) Down _ _) game = return game {bufferMov = U}
-handleKeys (EventKey (SpecialKey KeyDown) Down _ _) game = return game {bufferMov = D}
-handleKeys (EventKey (SpecialKey KeyLeft) Down _ _) game = return game {bufferMov = L}
-handleKeys (EventKey (SpecialKey KeyRight) Down _ _) game = return game {bufferMov = R}
-
-handleKeys _ game = return game
 
 
 

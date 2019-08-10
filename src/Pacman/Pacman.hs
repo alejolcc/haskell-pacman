@@ -6,7 +6,7 @@ data Pacman = Pacman
   {
     location :: (Float, Float), -- The position on the canvas
     position :: Pos,           -- The box on the dungeon
-    speed :: Int,
+    speed :: Float,
     mouth :: Int,
     direction :: Movement
   } deriving Show
@@ -17,7 +17,7 @@ initialPacman = Pacman
   {
     location = (15, 0),
     position = (1, 1),
-    speed = 1,
+    speed = 10,
     mouth = 1,
     direction = S
   }
@@ -27,11 +27,12 @@ movePacman :: Pacman -> Movement -> Pacman
 movePacman pm pos = pm {location=loc}
   where
     (x, y) = location pm
+    speedPm = speed pm
     loc = case pos of
-      U -> (x, y+1)
-      D -> (x, y-1)
-      L -> (x-1, y)
-      R -> (x+1, y)
+      U -> (x, y+speedPm)
+      D -> (x, y-speedPm)
+      L -> (x-speedPm, y)
+      R -> (x+speedPm, y)
       S -> (x, y)
 
 setPosition :: Pacman -> Pos -> Pacman
@@ -40,7 +41,7 @@ setPosition pm pos = pm {position=pos}
 setDirection :: Pacman -> Movement -> Pacman
 setDirection pm mov = pm {direction=mov}
 
-setSpeed :: Pacman -> Int -> Pacman
+setSpeed :: Pacman -> Float -> Pacman
 setSpeed pm speed = pm {speed=speed}
 
 updateMouth :: Pacman-> Pacman

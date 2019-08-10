@@ -79,12 +79,12 @@ rotatePacman _ p = p
 render :: GameState -> IO Picture
 render game = return $ translate dgPosX dgPosY $ pictures [dg, pacman', ghost']
   where
-    dg = mkDungeon $ dungeon game 
+    dg = mkDungeon $ dungeon game
     -- Pacman
     pacman' = renderPacman game
     -- Ghost
     ghost' = renderGhosts game
-    
+
 renderPacman :: GameState -> Picture
 renderPacman game = pacman1
   where
