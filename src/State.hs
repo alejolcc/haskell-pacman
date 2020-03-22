@@ -14,7 +14,8 @@ data GameState = Game
     dungeon :: Dungeon,
     bufferMov :: Movement,
     pacman :: Pacman.Pacman,
-    ghosts :: [Ghost.Ghost]
+    ghosts :: [Ghost.Ghost],
+    validPos :: [(Int, Int)]
   }
 
 instance Show GameState where
@@ -27,7 +28,8 @@ initialState = Game
     dungeon = testdungeon,
     bufferMov = S,
     ghosts = [ghost1, ghost2, ghost3, ghost4],
-    pacman = Pacman.initialPacman
+    pacman = Pacman.initialPacman,
+    validPos = getValidPos testdungeon
   }
   where
     ghost1 = Ghost.setPosition Ghost.initialGhost (12, 3)
@@ -65,43 +67,34 @@ updatePacmanDir game = newState
     next = bufferMov game
     newState = updateDir game next
 
-updatePacmanPos :: GameState -> GameState
-updatePacmanPos game = game {pacman=res}
-    where
-    dg = dungeon game
-    pman = pacman game
-    mov = Pacman.direction pman
-    res = if validateMov pman dg then Pacman.movePacman pman mov else pman
-
 -- Update pacman direction
 updateDir :: GameState -> Movement -> GameState
 updateDir game mov = game {pacman=pacman'}
     where
       pman = pacman game
-      pacman' = if Pacman.isMoving pman then pman else Pacman.setDirection pman mov
+      valid = validPos game
+      pacman' = if not (Pacman.isMoving pman) && validateMov pman mov valid then Pacman.setDirection pman mov else pman
 
-validateMov :: Pacman.Pacman -> Dungeon -> Bool
-validateMov pman dg = res
+updatePacmanPos :: GameState -> GameState
+updatePacmanPos game = game {pacman=pacman', dungeon=dg'}
+    where
+    pman = pacman game
+    mov = Pacman.direction pman
+    valid = validPos game
+    pacman' = if validateMov pman mov valid then Pacman.movePacman pman mov else pman
+    dg' = eatPill (dungeon game) (Pacman.position pacman')
+
+validateMov :: Pacman.Pacman -> Movement -> [(Int, Int)] -> Bool
+validateMov pman mov positions = res
   where
     (x, y) = Pacman.position pman
-    mov = Pacman.direction pman
     moving = Pacman.isMoving pman
     res = case mov of
-      U  -> (elem (x,y+1) $ getValidPos dg) || moving
-      D  -> (elem (x,y-1) $ getValidPos dg) || moving
-      L  -> (elem (x-1,y) $ getValidPos dg) || moving
-      R  -> (elem (x+1,y) $ getValidPos dg) || moving
-      S  -> (elem (x,y) $ getValidPos dg)
-
-
--- validateMov :: (Int, Int) -> Movement -> Dungeon -> Bool
--- validateMov (x, y) mov dg =
---   case mov of
---     U  -> elem (x,y+1) $ getValidPos dg
---     D  -> elem (x,y-1) $ getValidPos dg
---     L  -> elem (x-1,y) $ getValidPos dg
---     R  -> elem (x+1,y) $ getValidPos dg
---     S  -> elem (x,y) $ getValidPos dg
+      U  -> (elem (x,y+1) $ positions) || moving
+      D  -> (elem (x,y-1) $ positions) || moving
+      L  -> (elem (x-1,y) $ positions) || moving
+      R  -> (elem (x+1,y) $ positions) || moving
+      S  -> (elem (x,y) $ positions)
 
 
 -- Get all valid locations on dungeon
@@ -155,23 +148,19 @@ getSpace xs (px, py) =
 -- --------------------------------------------------------------------------------
 
 
-
-
-
-
--- eatPill :: Dungeon -> (Int, Int) -> Dungeon
--- eatPill dg p = newdg
---     where
---     (x, y) = p
---     row = dg !! y
---     newRow = replace row x Empty
---     newdg = replace dg y newRow
+eatPill :: Dungeon -> (Int, Int) -> Dungeon
+eatPill dg pos = newdg
+    where
+    (x, y) = pos
+    row = dg !! y
+    newRow = replace row x Empty
+    newdg = replace dg y newRow
 
 
 
 -- -- Aux
--- replace :: [a] -> Int -> a -> [a]
--- replace xs pos newVal = take pos xs ++ newVal : drop (pos+1) xs
+replace :: [a] -> Int -> a -> [a]
+replace xs pos newVal = take pos xs ++ newVal : drop (pos+1) xs
 
 -- -- get the space inside of dungeon
 -- getSpace :: Dungeon -> (Int, Int) -> Space

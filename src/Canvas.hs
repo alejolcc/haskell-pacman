@@ -17,8 +17,8 @@ background = white
 
 -- Draw a box with a pills | wall | empty space
 mkBox :: Space -> Picture
-mkBox Wall =  color blue $ rectangleWire widthBox heightBox
-mkBox Empty =  color black $ rectangleWire widthBox heightBox
+mkBox Wall =  color blue $ rectangleSolid widthBox heightBox
+mkBox Empty =  color black $ rectangleSolid widthBox heightBox
 mkBox Pill =  pillsBox
   where
     pill = color white $ circleSolid (heightBox / 10)
