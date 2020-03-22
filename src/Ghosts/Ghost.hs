@@ -6,6 +6,7 @@ import Constants
 data Ghost = Ghost
   {
     position :: (Int, Int),
+    location :: (Float, Float), -- The position on the canvas
     direction :: Movement
   } deriving Show
 
@@ -14,6 +15,7 @@ initialGhost :: Ghost
 initialGhost = Ghost
   {
     position = (12, 3),
+    location = (5, 5),
     direction = S
   }
 

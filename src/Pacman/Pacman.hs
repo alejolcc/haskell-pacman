@@ -15,7 +15,7 @@ data Pacman = Pacman
 initialPacman :: Pacman
 initialPacman = Pacman
   {
-    location = (0, 0),
+    location = (30, 30),
     position = (1, 1),
     speed = 10,
     mouth = 1,
@@ -23,11 +23,11 @@ initialPacman = Pacman
   }
 
 movePacman :: Pacman -> Movement -> Pacman
-movePacman pm pos = updateMouth(pm {location=loc, position=toDungeon(loc)})
+movePacman pm mov = updateMouth(pm {location=loc, position=(toDungeon loc mov)})
   where
     (x, y) = location pm
     speedPm = speed pm
-    loc = case pos of
+    loc = case mov of
       U -> (x, y+speedPm)
       D -> (x, y-speedPm)
       L -> (x-speedPm, y)
@@ -47,3 +47,8 @@ updateMouth :: Pacman-> Pacman
 updateMouth pm = pm {mouth=mouth'}
     where
       mouth' = if (mouth pm) == 4 then 0 else (mouth pm) + 1
+
+isMoving :: Pacman -> Bool
+isMoving pm = (round x) `mod` 30 /= 0 || (round y) `mod` 30 /= 0
+  where
+    (x, y) = location pm

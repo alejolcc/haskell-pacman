@@ -21,5 +21,11 @@ heightBox :: Float
 heightBox = 30
 
 -- Map a canvas position to dg box
-toDungeon :: (Float, Float) -> (Int, Int)
-toDungeon (x, y) = (round x `div` round widthBox, round y `div` round heightBox)
+toDungeon :: (Float, Float) -> Movement -> (Int, Int)
+toDungeon (x, y) mov = 
+  case mov of
+    U ->(round x `div` round widthBox, round y `div` round heightBox)
+    D ->(round x `div` round widthBox, round y `div` round heightBox)
+    L ->(round x `div` round widthBox, round y `div` round heightBox)
+    R ->(round x `div` round widthBox, round y `div` round heightBox)
+    S ->(round x `div` round widthBox, round y `div` round heightBox)

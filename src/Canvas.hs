@@ -3,6 +3,7 @@ module Canvas where
 import State
 import Constants
 import PacmanCanvas
+import GhostCanvas
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
 
@@ -16,8 +17,8 @@ background = white
 
 -- Draw a box with a pills | wall | empty space
 mkBox :: Space -> Picture
-mkBox Wall =  color blue $ rectangleSolid widthBox heightBox
-mkBox Empty =  color black $ rectangleSolid widthBox heightBox
+mkBox Wall =  color blue $ rectangleWire widthBox heightBox
+mkBox Empty =  color black $ rectangleWire widthBox heightBox
 mkBox Pill =  pillsBox
   where
     pill = color white $ circleSolid (heightBox / 10)
@@ -42,13 +43,13 @@ mkDungeon dg = pictures rowList
 
 -- Render game
 render :: GameState -> IO Picture
-render game = return $ translate dgPosX dgPosY $ pictures [dg, pacman']
+render game = return $ translate dgPosX dgPosY $ pictures ([dg, pacman'] ++ ghost')
   where
     dg = mkDungeon $ dungeon game
     -- Pacman
     pacman' = renderPacman $ pacman game
     -- Ghost
-    -- ghost' = renderGhosts game
+    ghost' = map renderGhost $ ghosts game
 
 update :: Float -> GameState -> IO GameState
 update seconds game = printState (updateState game seconds)

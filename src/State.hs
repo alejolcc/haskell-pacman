@@ -66,18 +66,63 @@ updatePacmanDir game = newState
     newState = updateDir game next
 
 updatePacmanPos :: GameState -> GameState
-updatePacmanPos game = game {pacman=pacman'}
+updatePacmanPos game = game {pacman=res}
     where
+    dg = dungeon game
     pman = pacman game
-    mov = Pacman.direction $ pman
-    pacman' = Pacman.movePacman pman mov
+    mov = Pacman.direction pman
+    res = if validateMov pman dg then Pacman.movePacman pman mov else pman
 
 -- Update pacman direction
 updateDir :: GameState -> Movement -> GameState
 updateDir game mov = game {pacman=pacman'}
     where
-    pman = pacman game
-    pacman' = Pacman.setDirection pman mov
+      pman = pacman game
+      pacman' = if Pacman.isMoving pman then pman else Pacman.setDirection pman mov
+
+validateMov :: Pacman.Pacman -> Dungeon -> Bool
+validateMov pman dg = res
+  where
+    (x, y) = Pacman.position pman
+    mov = Pacman.direction pman
+    moving = Pacman.isMoving pman
+    res = case mov of
+      U  -> (elem (x,y+1) $ getValidPos dg) || moving
+      D  -> (elem (x,y-1) $ getValidPos dg) || moving
+      L  -> (elem (x-1,y) $ getValidPos dg) || moving
+      R  -> (elem (x+1,y) $ getValidPos dg) || moving
+      S  -> (elem (x,y) $ getValidPos dg)
+
+
+-- validateMov :: (Int, Int) -> Movement -> Dungeon -> Bool
+-- validateMov (x, y) mov dg =
+--   case mov of
+--     U  -> elem (x,y+1) $ getValidPos dg
+--     D  -> elem (x,y-1) $ getValidPos dg
+--     L  -> elem (x-1,y) $ getValidPos dg
+--     R  -> elem (x+1,y) $ getValidPos dg
+--     S  -> elem (x,y) $ getValidPos dg
+
+
+-- Get all valid locations on dungeon
+getValidPos :: Dungeon -> [(Int, Int)]
+getValidPos dg = res
+    where
+    (w, h) = getDungeonSize dg
+    posiblePos = [(x, y) | x <- [0..w], y <- [0..h]]
+    valid = \pos -> Pill == (getSpace dg pos) || Empty == (getSpace dg pos)
+    res = filter valid posiblePos
+
+getDungeonSize :: Dungeon -> (Int, Int)
+getDungeonSize dg = (w-1, h-1)
+    where
+    w = length $ dg !! 0
+    h = length dg
+
+-- get the space inside of dungeon
+getSpace :: Dungeon -> (Int, Int) -> Space
+getSpace xs (px, py) =
+    xs !! py !! px
 
 -- -- Logic to move pacman on the dungeon
 -- movePacman :: GameState -> Movement -> GameState

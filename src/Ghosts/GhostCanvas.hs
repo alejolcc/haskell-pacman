@@ -8,10 +8,10 @@ ghostSize :: Float
 ghostSize = widthBox / 2
 
 ghostPlayer :: Picture
-ghostPlayer = Color red $ arcSolid 1 180 ghostSize
+ghostPlayer = Color red $ arcSolid 1 360 ghostSize
 
 renderGhost :: Ghost -> Picture
 renderGhost ghost = ghostRendered
   where
-    (gx, gy) = position ghost
-    ghostRendered = translate (fromIntegral gx * widthBox) (fromIntegral gy * heightBox) $ ghostPlayer
+    (gx, gy) = location ghost
+    ghostRendered = translate gx gy $ ghostPlayer

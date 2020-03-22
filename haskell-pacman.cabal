@@ -20,6 +20,6 @@ executable haskell-pacman
   other-modules:      State, Pacman, Ghost, Canvas Constants PacmanCanvas
   -- other-extensions:
   build-depends:       base <4.13
-                       ,gloss==1.13.*
+                       ,gloss==1.13.1.1
   hs-source-dirs:      src, src/Pacman, src/Ghosts
   default-language:    Haskell2010
