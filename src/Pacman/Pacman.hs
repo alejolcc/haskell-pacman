@@ -23,7 +23,7 @@ initialPacman = Pacman
   }
 
 movePacman :: Pacman -> Movement -> Pacman
-movePacman pm mov = updateMouth(pm {location=loc, position=(toDungeon loc mov)})
+movePacman pm mov = updateMouth $ (pm {location=loc, position=(toDungeon loc)})
   where
     (x, y) = location pm
     speedPm = speed pm
@@ -42,6 +42,21 @@ setDirection pm mov = pm {direction=mov}
 
 setSpeed :: Pacman -> Float -> Pacman
 setSpeed pm speed = pm {speed=speed}
+
+handleWarp :: Pacman -> [((Int, Int), (Int, Int))] -> Pacman
+handleWarp pm warps = pm {location=loc', position=pos'}
+  where
+    pos' = getWarpMap (position pm) warps
+    loc' = toCanvas pos'
+
+getWarpMap :: (Int, Int) -> [((Int, Int),(Int, Int))] -> (Int, Int)
+getWarpMap x [(y, z)]
+  | x == y = z
+
+getWarpMap x ((y, z):xs)
+  | x == y = z
+
+getWarpMap x (y:ys) = getWarpMap x ys
 
 updateMouth :: Pacman-> Pacman
 updateMouth pm = pm {mouth=mouth'}
