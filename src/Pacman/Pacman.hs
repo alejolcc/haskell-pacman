@@ -15,8 +15,8 @@ data Pacman = Pacman
 initialPacman :: Pacman
 initialPacman = Pacman
   {
-    location = (30, 30),
-    position = (1, 1),
+    location = toCanvas (1, 13),
+    position = (1, 13),
     speed = 10,
     mouth = 1,
     direction = S

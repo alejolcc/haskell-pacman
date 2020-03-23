@@ -19,7 +19,13 @@ background = white
 mkBox :: Space -> Picture
 mkBox Wall =  color blue $ rectangleSolid widthBox heightBox
 mkBox Empty =  color black $ rectangleSolid widthBox heightBox
-mkBox Warp =  color black $ rectangleSolid widthBox heightBox
+
+mkBox SuperPill = superPillsBox
+  where
+    superPill = color white $ circleSolid (heightBox / 5)
+    box = color black $ rectangleSolid widthBox heightBox
+    superPillsBox = pictures [box, superPill]
+
 mkBox Pill =  pillsBox
   where
     pill = color white $ circleSolid (heightBox / 10)

@@ -6,13 +6,14 @@ import qualified Ghost
 import Graphics.Gloss.Interface.IO.Game
 
 testdungeon :: Dungeon
-testdungeon = reverse [[Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall],[Wall,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Wall,Wall,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Wall],[Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall],[Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall],[Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall],[Wall,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Wall,Wall,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Wall],[Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall],[Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall],[Wall,Pill,Pill,Pill,Pill,Pill,Pill,Wall,Wall,Pill,Pill,Pill,Pill,Wall,Wall,Pill,Pill,Pill,Pill,Wall,Wall,Pill,Pill,Pill,Pill,Pill,Pill,Wall],[Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Empty,Wall,Wall,Empty,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall],[Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Empty,Wall,Wall,Empty,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall],[Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall],[Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall],[Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall],[Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill],[Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall]]
+testdungeon = reverse [[Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall],[Wall,SuperPill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Wall,Wall,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Wall],[Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall],[Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall],[Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall],[Wall,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Wall,Wall,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Wall],[Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall],[Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall],[Wall,Pill,Pill,Pill,Pill,Pill,Pill,Wall,Wall,Pill,Pill,Pill,Pill,Wall,Wall,Pill,Pill,Pill,Pill,Wall,Wall,Pill,Pill,Pill,Pill,Pill,Pill,Wall],[Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Empty,Wall,Wall,Empty,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall],[Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Empty,Wall,Wall,Empty,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall],[Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall],[Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall],[Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall],[Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill],[Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall]]
 
 testWarps :: [((Int, Int), (Int, Int))]
 testWarps = [((-1, 1), (27, 1)), ((28, 1), (0, 1))]
 
 data GameState = Game
   {
+    lifes :: Int,
     dungeon :: Dungeon,
     bufferMov :: Movement,
     pacman :: Pacman.Pacman,
@@ -22,12 +23,15 @@ data GameState = Game
   }
 
 instance Show GameState where
-  show Game{ bufferMov=mov , pacman=p, ghosts=g} =
-    "BuffMov " ++ show mov ++ " " ++ show p
+  show Game{ bufferMov=mov , pacman=p, ghosts=g, lifes=l} =
+    "BuffMov " ++ show mov ++ " " ++ "Lifes " ++ show l ++ " " ++ "\n" 
+               ++ show p ++ "\n"
+               ++ show g
 
 initialState :: GameState
 initialState = Game
   {
+    lifes = 3,
     dungeon = testdungeon,
     bufferMov = S,
     ghosts = [ghost1, ghost2, ghost3, ghost4],
@@ -36,13 +40,13 @@ initialState = Game
     warpsPos = testWarps
   }
   where
-    ghost1 = Ghost.setPosition Ghost.initialGhost (12, 3)
-    ghost2 = Ghost.setPosition Ghost.initialGhost (13, 3)
-    ghost3 = Ghost.setPosition Ghost.initialGhost (14, 3)
-    ghost4 = Ghost.setPosition Ghost.initialGhost (15, 3)
+    ghost1 = Ghost.initialGhost (12, 3)
+    ghost2 = Ghost.initialGhost (13, 3)
+    ghost3 = Ghost.initialGhost (14, 3)
+    ghost4 = Ghost.initialGhost (15, 3)
 
 updateState :: GameState -> Float -> GameState
-updateState game seconds = eatPill . updatePacman $ game
+updateState game seconds = resolveColitions . updatePacman $ game
 
 printState :: GameState -> IO GameState
 printState game = do
@@ -58,6 +62,26 @@ handleKeys (EventKey (SpecialKey KeyRight) Down _ _) game = return game {bufferM
 handleKeys (EventKey (SpecialKey KeySpace) Down _ _) game = return initialState
 
 handleKeys _ game = return game
+
+resolveColitions :: GameState -> GameState
+resolveColitions game = colPacmanGhost . colPacmanPill $ game
+
+colPacmanPill :: GameState -> GameState
+colPacmanPill game = game'
+  where
+    pos = Pacman.position (pacman game)
+    dg = dungeon game
+    game' = case getSpace dg pos of
+      SuperPill -> eatSuperPill . eatPill $ game
+      _         -> eatPill game
+
+colPacmanGhost :: GameState -> GameState
+colPacmanGhost game = game'
+  where
+    ghostsPos = map (Ghost.position) (ghosts game)
+    pmanPos = Pacman.position (pacman game)
+    life = lifes game
+    game' = if elem pmanPos ghostsPos then initialState {lifes=life-1} else game
 
 --------------------
 -- Pacman updates --
@@ -121,6 +145,12 @@ eatPill game = game {dungeon=dungeon'}
     newRow = replace row x Empty
     dungeon' = replace dg y newRow
 
+eatSuperPill :: GameState -> GameState
+eatSuperPill game = game {ghosts=ghosts'}
+  where
+    ghostList = ghosts game
+    ghosts' = map (Ghost.setWeak True) ghostList
+
 
 -- -- Aux
 replace :: [a] -> Int -> a -> [a]
@@ -132,7 +162,7 @@ getValidPos dg = res
     where
       (w, h) = getDungeonSize dg
       posiblePos = [(x, y) | x <- [0..w], y <- [0..h]]
-      valid = \pos -> Pill == (getSpace dg pos) || Empty == (getSpace dg pos)
+      valid = \pos -> Pill == (getSpace dg pos) || Empty == (getSpace dg pos) || SuperPill == (getSpace dg pos)
       res = filter valid posiblePos
 
 getDungeonSize :: Dungeon -> (Int, Int)

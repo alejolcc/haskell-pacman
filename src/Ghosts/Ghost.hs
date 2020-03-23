@@ -7,15 +7,23 @@ data Ghost = Ghost
   {
     position :: (Int, Int),
     location :: (Float, Float), -- The position on the canvas
+    speed :: Float,
+    weak :: Bool,
     direction :: Movement
-  } deriving Show
+  }
+
+instance Show Ghost where
+  show Ghost{ position=pos, speed=spd, weak=w, direction=d} =
+    "Ghost " ++ show pos ++ " " ++ show spd ++ " " ++ show w ++ " "++ show d
 
 
-initialGhost :: Ghost
-initialGhost = Ghost
+initialGhost :: (Int, Int) -> Ghost
+initialGhost pos = Ghost
   {
-    position = (12, 3),
-    location = (5, 5),
+    location = toCanvas(pos),
+    position = pos,
+    speed = 15,
+    weak = False,
     direction = S
   }
 
@@ -24,3 +32,7 @@ setPosition ghost pos = ghost {position=pos}
 
 setDirection :: Ghost -> Movement -> Ghost
 setDirection ghost next = ghost {direction=next}
+
+setWeak :: Bool -> Ghost -> Ghost
+setWeak True gh = gh {weak=True, speed=5}
+setWeak False gh = gh {weak=True, speed=15}
