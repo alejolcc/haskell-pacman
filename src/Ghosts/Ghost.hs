@@ -5,10 +5,12 @@ import Constants
 
 data Ghost = Ghost
   {
+    name :: GhostName,
     position :: (Int, Int),
     location :: (Float, Float), -- The position on the canvas
     speed :: Float,
     weak :: Bool,
+    alive :: Bool,
     direction :: Movement
   }
 
@@ -17,13 +19,15 @@ instance Show Ghost where
     "Ghost " ++ show pos ++ " " ++ show spd ++ " " ++ show w ++ " "++ show d
 
 
-initialGhost :: (Int, Int) -> Ghost
-initialGhost pos = Ghost
+initialGhost :: GhostName -> (Int, Int) -> Ghost
+initialGhost name pos = Ghost
   {
+    name = name,
     location = toCanvas(pos),
     position = pos,
     speed = 15,
     weak = False,
+    alive = True,
     direction = S
   }
 

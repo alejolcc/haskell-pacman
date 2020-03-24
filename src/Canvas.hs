@@ -6,6 +6,7 @@ import PacmanCanvas
 import GhostCanvas
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
+import qualified Data.Foldable as Fold
 
 
 window :: Display
@@ -56,7 +57,8 @@ render game = return $ translate dgPosX dgPosY $ pictures ([dg, pacman'] ++ ghos
     -- Pacman
     pacman' = renderPacman $ pacman game
     -- Ghost
-    ghost' = map renderGhost $ ghosts game
+    ghostList = Fold.toList $ ghosts game
+    ghost' = map renderGhost $ ghostList
 
 update :: Float -> GameState -> IO GameState
 update seconds game = printState (updateState game seconds)

@@ -1,5 +1,8 @@
 module State where
 
+import qualified Data.Sequence as Seq
+import qualified Data.Maybe as Maybe
+import qualified Data.List as List
 import Constants
 import qualified Pacman
 import qualified Ghost
@@ -15,16 +18,17 @@ data GameState = Game
   {
     lifes :: Int,
     dungeon :: Dungeon,
+    colision :: Maybe Ghost.Ghost,
     bufferMov :: Movement,
     pacman :: Pacman.Pacman,
-    ghosts :: [Ghost.Ghost],
+    ghosts :: Seq.Seq Ghost.Ghost,
     validPos :: [(Int, Int)],
     warpsPos ::[((Int, Int), (Int, Int))]
   }
 
 instance Show GameState where
-  show Game{ bufferMov=mov , pacman=p, ghosts=g, lifes=l} =
-    "BuffMov " ++ show mov ++ " " ++ "Lifes " ++ show l ++ " " ++ "\n" 
+  show Game{ bufferMov=mov , pacman=p, ghosts=g, lifes=l, colision=c} =
+    "BuffMov " ++ show mov ++ " " ++ "Lifes " ++ show l ++ " " ++ show c++ "\n" 
                ++ show p ++ "\n"
                ++ show g
 
@@ -34,16 +38,17 @@ initialState = Game
     lifes = 3,
     dungeon = testdungeon,
     bufferMov = S,
-    ghosts = [ghost1, ghost2, ghost3, ghost4],
+    colision = Nothing,
+    ghosts = Seq.fromList [ghost1, ghost2, ghost3, ghost4],
     pacman = Pacman.initialPacman,
     validPos = getValidPos testdungeon,
     warpsPos = testWarps
   }
   where
-    ghost1 = Ghost.initialGhost (12, 3)
-    ghost2 = Ghost.initialGhost (13, 3)
-    ghost3 = Ghost.initialGhost (14, 3)
-    ghost4 = Ghost.initialGhost (15, 3)
+    ghost1 = Ghost.initialGhost Blinky (12, 3)
+    ghost2 = Ghost.initialGhost Pinky (13, 3)
+    ghost3 = Ghost.initialGhost Inky (14, 3)
+    ghost4 = Ghost.initialGhost Clyde (15, 3)
 
 updateState :: GameState -> Float -> GameState
 updateState game seconds = resolveColitions . updatePacman $ game
@@ -76,12 +81,26 @@ colPacmanPill game = game'
       _         -> eatPill game
 
 colPacmanGhost :: GameState -> GameState
-colPacmanGhost game = game'
+colPacmanGhost game = game''
   where
-    ghostsPos = map (Ghost.position) (ghosts game)
+    pman = pacman game
+    gh = ghostColision game
+    game' = if Maybe.isNothing gh then game else pacmanVsGhost pman (Maybe.fromJust gh) game
+    game'' = game' {colision=gh} --TODO: Remove line, just for debug
+
+pacmanVsGhost :: Pacman.Pacman -> Ghost.Ghost -> GameState -> GameState
+pacmanVsGhost pman gh game = game'
+  where
+    game' = case Ghost.weak gh of
+      False -> initialState {lifes=(lifes game) - 1}
+      True -> game
+
+ghostColision :: GameState -> Maybe Ghost.Ghost
+ghostColision game = ghost
+  where
     pmanPos = Pacman.position (pacman game)
-    life = lifes game
-    game' = if elem pmanPos ghostsPos then initialState {lifes=life-1} else game
+    isColision = \ghost -> Ghost.position ghost == pmanPos
+    ghost = List.find isColision (ghosts game)
 
 --------------------
 -- Pacman updates --
@@ -148,8 +167,9 @@ eatPill game = game {dungeon=dungeon'}
 eatSuperPill :: GameState -> GameState
 eatSuperPill game = game {ghosts=ghosts'}
   where
-    ghostList = ghosts game
-    ghosts' = map (Ghost.setWeak True) ghostList
+    ghostSeq = ghosts game
+    weaken = \_ ghost -> Ghost.setWeak True ghost
+    ghosts' = (Seq.mapWithIndex weaken ghostSeq)
 
 
 -- -- Aux
