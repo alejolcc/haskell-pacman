@@ -39,16 +39,16 @@ initialState = Game
     dungeon = testdungeon,
     bufferMov = S,
     colision = Nothing,
-    ghosts = Seq.fromList [ghost1, ghost2, ghost3, ghost4],
+    ghosts = Seq.fromList [ghost0, ghost1, ghost2, ghost3],
     pacman = Pacman.initialPacman,
     validPos = getValidPos testdungeon,
     warpsPos = testWarps
   }
   where
-    ghost1 = Ghost.initialGhost Blinky (12, 3)
-    ghost2 = Ghost.initialGhost Pinky (13, 3)
-    ghost3 = Ghost.initialGhost Inky (14, 3)
-    ghost4 = Ghost.initialGhost Clyde (15, 3)
+    ghost0 = Ghost.initialGhost 0 (12, 3)
+    ghost1 = Ghost.initialGhost 1 (13, 3)
+    ghost2 = Ghost.initialGhost 2 (14, 3)
+    ghost3 = Ghost.initialGhost 3 (15, 3)
 
 updateState :: GameState -> Float -> GameState
 updateState game seconds = resolveColitions . updatePacman $ game
@@ -89,11 +89,11 @@ colPacmanGhost game = game''
     game'' = game' {colision=gh} --TODO: Remove line, just for debug
 
 pacmanVsGhost :: Pacman.Pacman -> Ghost.Ghost -> GameState -> GameState
-pacmanVsGhost pman gh game = game'
-  where
-    game' = case Ghost.weak gh of
-      False -> initialState {lifes=(lifes game) - 1}
-      True -> game
+pacmanVsGhost pman gh game = case Ghost.weak gh of
+                              False -> initialState {lifes=(lifes game) - 1}
+                              True -> game {ghosts=ghosts'}
+                                where
+                                  ghosts' = Seq.update (Ghost.gid gh) (Ghost.setAlive gh False) (ghosts game)
 
 ghostColision :: GameState -> Maybe Ghost.Ghost
 ghostColision game = ghost
@@ -168,7 +168,7 @@ eatSuperPill :: GameState -> GameState
 eatSuperPill game = game {ghosts=ghosts'}
   where
     ghostSeq = ghosts game
-    weaken = \_ ghost -> Ghost.setWeak True ghost
+    weaken = \_ ghost -> Ghost.setWeak ghost True
     ghosts' = (Seq.mapWithIndex weaken ghostSeq)
 
 

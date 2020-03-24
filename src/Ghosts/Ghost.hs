@@ -5,7 +5,7 @@ import Constants
 
 data Ghost = Ghost
   {
-    name :: GhostName,
+    gid :: Int,
     position :: (Int, Int),
     location :: (Float, Float), -- The position on the canvas
     speed :: Float,
@@ -15,14 +15,20 @@ data Ghost = Ghost
   }
 
 instance Show Ghost where
-  show Ghost{ position=pos, speed=spd, weak=w, direction=d} =
-    "Ghost " ++ show pos ++ " " ++ show spd ++ " " ++ show w ++ " "++ show d
+  show Ghost{ position=pos, gid=gid, speed=spd, weak=w, direction=d, alive=alive} =
+    "Ghost " ++ "Pos " ++ show pos ++ " " 
+             ++ "Id " ++ show gid ++ " " 
+             ++ "Speed " ++ show spd ++ " " 
+             ++ "Weak " ++ show w ++ " " 
+             ++ "Dir " ++ show d ++ " "
+             ++ "Alive " ++ show alive
+             ++ "\n"
 
 
-initialGhost :: GhostName -> (Int, Int) -> Ghost
-initialGhost name pos = Ghost
+initialGhost :: Int -> (Int, Int) -> Ghost
+initialGhost gid pos = Ghost
   {
-    name = name,
+    gid = gid,
     location = toCanvas(pos),
     position = pos,
     speed = 15,
@@ -37,6 +43,9 @@ setPosition ghost pos = ghost {position=pos}
 setDirection :: Ghost -> Movement -> Ghost
 setDirection ghost next = ghost {direction=next}
 
-setWeak :: Bool -> Ghost -> Ghost
-setWeak True gh = gh {weak=True, speed=5}
-setWeak False gh = gh {weak=True, speed=15}
+setWeak :: Ghost -> Bool -> Ghost
+setWeak gh True = gh {weak=True, speed=5}
+setWeak gh False = gh {weak=True, speed=15}
+
+setAlive :: Ghost -> Bool -> Ghost
+setAlive gh alive = gh {alive=alive}

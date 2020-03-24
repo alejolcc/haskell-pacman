@@ -14,5 +14,8 @@ renderGhost :: Ghost -> Picture
 renderGhost ghost = ghostRendered
   where
     (gx, gy) = location ghost
-    color = if Ghost.weak ghost then blue else red
+    color = case (Ghost.weak ghost, Ghost.alive ghost) of
+      (_, False) -> black
+      (True, _) -> blue
+      (_, _) -> red
     ghostRendered = translate gx gy $ ghostPlayer color

@@ -2,7 +2,6 @@ module Constants where
 
 data Movement = U | D | L | R | S  deriving Show
 data Space = Pill | Empty | Wall | SuperPill deriving (Show, Eq)
-data GhostName = Blinky | Pinky | Inky | Clyde
 
 type Dungeon = [[Space]]
 
