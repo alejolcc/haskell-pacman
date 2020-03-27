@@ -1,5 +1,6 @@
 module State where
 
+import IA
 import qualified Data.Sequence as Seq
 import qualified Data.Maybe as Maybe
 import qualified Data.List as List
@@ -51,7 +52,7 @@ initialState = Game
     ghost3 = Ghost.initialGhost 3 (15, 3)
 
 updateState :: GameState -> Float -> GameState
-updateState game seconds = resolveColitions . updatePacman $ game
+updateState game seconds = resolveColitions . updateGhosts . updatePacman $ game
 
 printState :: GameState -> IO GameState
 printState game = do
@@ -144,6 +145,69 @@ validateMov pman mov positions = res
       S  -> (elem (x,y) $ positions)
 
 --------------------
+-- Ghosts updates --
+--------------------
+
+updateGhosts :: GameState -> GameState
+updateGhosts game = updateGhostPos . updateGhostDir $ game
+
+updateGhostDir :: GameState -> GameState
+updateGhostDir game = game{ghosts=ghosts'}
+  where
+    ghostSeq = ghosts game
+    updateGhosts = \_ gh -> getNextMove gh game
+    ghosts' = (Seq.mapWithIndex updateGhosts ghostSeq)
+
+getNextMove :: Ghost.Ghost -> GameState -> Ghost.Ghost
+getNextMove gh game = gh'
+  where
+    -- nextMove = IA.nextMove gh game
+    valid = validPos game
+    -- nextMove = S
+    gid = Ghost.gid gh
+    end = selectTarget gid gh game
+    start = Ghost.position gh
+    nextMove = IA.nextMove start end valid
+    gh' = if not (Ghost.isMoving gh) then Ghost.setDirection gh nextMove else gh
+
+updateGhostPos :: GameState -> GameState
+updateGhostPos game = game {ghosts=ghosts'}
+    where
+      ghostSeq = ghosts game
+      moveGhost = \_ gh -> Ghost.moveGhost gh (Ghost.direction gh)
+      ghosts' = (Seq.mapWithIndex moveGhost ghostSeq)
+
+-- 0 - Blinky
+-- 1 - Pinky
+-- 2 - Inky
+-- 3 - Clyde
+-- https://gameinternals.com/understanding-pac-man-ghost-behavior
+
+selectTarget :: Int -> Ghost.Ghost -> GameState -> (Int, Int)
+selectTarget 0 gh game = target
+  where
+    target = Pacman.position (pacman game)
+
+selectTarget 1 gh game = (nextNspaces 4 pos dir dg)
+  where
+    dg = dungeon game
+    pman = pacman game
+    dir = Pacman.direction pman
+    pos = Pacman.position pman
+
+selectTarget 2 gh game = target
+  where
+    dg = dungeon game
+    pman = pacman game
+    dir = Pacman.direction pman
+    pos = Pacman.position pman
+    (gx, gy) = Ghost.position gh
+    (rx, ry) = (nextNspaces 2 pos dir dg)
+    target = (rx + (-gx), ry + (-gy))
+
+selectTarget 3 gh game = (4, 5)
+
+--------------------
 ------ Aux ---------
 --------------------
 
@@ -170,6 +234,14 @@ eatSuperPill game = game {ghosts=ghosts'}
     ghostSeq = ghosts game
     weaken = \_ ghost -> Ghost.setWeak ghost True
     ghosts' = (Seq.mapWithIndex weaken ghostSeq)
+
+nextNspaces :: Int -> (Int, Int) -> Movement -> Dungeon -> (Int, Int)
+nextNspaces n pos dir dg = case (pos, dir) of
+  ((x, y), U) -> (x, y+n)
+  ((x, y), D) -> (x, y-n)
+  ((x, y), L) -> (x-n, y+n)
+  ((x, y), R) -> (x+n, y)
+  _ -> pos
 
 
 -- -- Aux

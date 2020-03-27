@@ -17,7 +17,7 @@ initialPacman = Pacman
   {
     location = toCanvas (1, 13),
     position = (1, 13),
-    speed = 10,
+    speed = 5,
     mouth = 1,
     direction = S
   }
