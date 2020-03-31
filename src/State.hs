@@ -53,7 +53,8 @@ initialState = Game
     ghost3 = Ghost.initialGhost 3 (15, 3)
 
 updateState :: GameState -> Float -> GameState
-updateState game seconds = (setTimer seconds) . resolveColitions . (updateGhosts seconds) . (updatePacman seconds) $ game
+updateState game seconds =
+  (setTimer seconds) . resolveColitions . (updateGhosts seconds) . (updatePacman seconds) $ game
 
 printState :: GameState -> IO GameState
 printState game = do
@@ -67,14 +68,13 @@ handleKeys (EventKey (SpecialKey KeyDown) Down _ _) game = return game {bufferMo
 handleKeys (EventKey (SpecialKey KeyLeft) Down _ _) game = return game {bufferMov = L}
 handleKeys (EventKey (SpecialKey KeyRight) Down _ _) game = return game {bufferMov = R}
 handleKeys (EventKey (SpecialKey KeySpace) Down _ _) game = return initialState
-
 handleKeys _ game = return game
-
-resolveColitions :: GameState -> GameState
-resolveColitions game = colPacmanGhost . colPacmanPill $ game
 
 setTimer :: Float -> GameState -> GameState
 setTimer advTime game = game {timer = timer game + advTime}
+
+resolveColitions :: GameState -> GameState
+resolveColitions game = colPacmanGhost . colPacmanPill $ game
 
 colPacmanPill :: GameState -> GameState
 colPacmanPill game = game'
@@ -110,7 +110,7 @@ getColision game = ghost
 -- Pacman updates --
 --------------------
 
--- TODO: Use timer to handle mount
+-- TODO: Use timer to handle mouth
 updatePacman :: Float -> GameState -> GameState
 updatePacman t game = handleWarp . updatePacmanPos . updatePacmanDir $ game
 
@@ -158,21 +158,11 @@ updateGhosts t game = (updateGhostTimer t) . updateGhostPos . updateGhostDir $ g
 updateGhostDir :: GameState -> GameState
 updateGhostDir game = game{ghosts=ghosts'}
   where
-    ghostSeq = ghosts game
-    updateGhosts = \_ gh -> getNextMove gh game
-    ghosts' = (Seq.mapWithIndex updateGhosts ghostSeq)
-
-getNextMove :: Ghost.Ghost -> GameState -> Ghost.Ghost
-getNextMove gh game = gh'
-  where
-    -- nextMove = IA.nextMove gh game
+    pman = pacman game
     valid = validPos game
-    -- nextMove = S
-    gid = Ghost.gid gh
-    end = selectTarget gid gh game
-    start = Ghost.position gh
-    nextMove = IA.nextMove start end valid
-    gh' = if not (Ghost.isMoving gh) then Ghost.setDirection gh nextMove else gh
+    ghostSeq = ghosts game
+    updateGhosts = \gid gh -> IA.updateGhost gid gh pman valid
+    ghosts' = (Seq.mapWithIndex updateGhosts ghostSeq)
 
 updateGhostPos :: GameState -> GameState
 updateGhostPos game = game {ghosts=ghosts'}
@@ -187,36 +177,6 @@ updateGhostTimer t game = game {ghosts=ghosts'}
     ghostSeq = ghosts game
     updateTimer = \_ gh -> Ghost.setTimer gh (Ghost.timer gh + t)
     ghosts' = (Seq.mapWithIndex updateTimer ghostSeq)
-
--- 0 - Blinky
--- 1 - Pinky
--- 2 - Inky
--- 3 - Clyde
--- https://gameinternals.com/understanding-pac-man-ghost-behavior
-
-selectTarget :: Int -> Ghost.Ghost -> GameState -> (Int, Int)
-selectTarget 0 gh game = target
-  where
-    target = Pacman.position (pacman game)
-
-selectTarget 1 gh game = (nextNspaces 4 pos dir dg)
-  where
-    dg = dungeon game
-    pman = pacman game
-    dir = Pacman.direction pman
-    pos = Pacman.position pman
-
-selectTarget 2 gh game = target
-  where
-    dg = dungeon game
-    pman = pacman game
-    dir = Pacman.direction pman
-    pos = Pacman.position pman
-    (gx, gy) = Ghost.position gh
-    (rx, ry) = (nextNspaces 2 pos dir dg)
-    target = (rx + (-gx), ry + (-gy))
-
-selectTarget 3 gh game = (4, 5)
 
 --------------------
 ------ Aux ---------
@@ -245,14 +205,6 @@ eatSuperPill game = game {ghosts=ghosts'}
     ghostSeq = ghosts game
     weaken = \_ ghost -> Ghost.setWeak ghost True
     ghosts' = (Seq.mapWithIndex weaken ghostSeq)
-
-nextNspaces :: Int -> (Int, Int) -> Movement -> Dungeon -> (Int, Int)
-nextNspaces n pos dir dg = case (pos, dir) of
-  ((x, y), U) -> (x, y+n)
-  ((x, y), D) -> (x, y-n)
-  ((x, y), L) -> (x-n, y+n)
-  ((x, y), R) -> (x+n, y)
-  _ -> pos
 
 
 -- -- Aux
