@@ -18,16 +18,15 @@ data Ghost = Ghost
   }
 
 instance Show Ghost where
-  show Ghost{ position=pos, location=loc, gid=gid, speed=spd, weak=w, direction=d, alive=alive, timer=t} =
-    "Ghost " ++ "Pos " ++ show pos ++ " " 
-             ++ "Loc " ++ show loc ++ " " 
-             ++ "Id " ++ show gid ++ " " 
-             ++ "Speed " ++ show spd ++ " " 
-             ++ "Weak " ++ show w ++ " " 
-             ++ "Dir " ++ show d ++ " "
-             ++ "Alive " ++ show alive ++ " "
-             ++ "Timer " ++ show t
-             ++ "\n"
+  show gh = "Ghost "
+              ++ "Pos "   ++ show (position gh)   ++ " "
+              ++ "Loc "   ++ show (location gh)   ++ " "
+              ++ "Id "    ++ show (gid gh)        ++ " "
+              ++ "Speed " ++ show (speed gh)      ++ " "
+              ++ "Weak "  ++ show (weak gh)       ++ " "
+              ++ "Dir "   ++ show (direction gh)  ++ " "
+              ++ "Alive " ++ show (alive gh)      ++ " "
+              ++ "Timer " ++ show (timer gh)      ++ "\n"
 
 
 initialGhost :: Int -> (Int, Int) -> Ghost
@@ -76,22 +75,25 @@ isMoving gh = (round x) `mod` 30 /= 0 || (round y) `mod` 30 /= 0
 
 setTimer :: Ghost -> Float -> Ghost
 setTimer gh t = case alive gh of
-  True -> maybeChangeMode (gh {timer = t}) 7
-  False -> maybeChangeMode (gh {timer = 0}) 0
+  True -> gh {timer = t}
+  False -> gh {timer = 0}
 
--- The ghosts start out in Scatter mode, and there are four waves of Scatter/Chase alternation defined, 
--- after which the ghosts will remain in Chase mode indefinitely (until the timer is reset). 
+-- The ghosts start out in Scatter mode, and there are four waves of Scatter/Chase alternation defined,
+-- after which the ghosts will remain in Chase mode indefinitely (until the timer is reset).
 -- Scatter for 7 seconds, then Chase for 20 seconds.
 -- Scatter for 7 seconds, then Chase for 20 seconds.
 -- Scatter for 5 seconds, then Chase for 20 seconds.
 -- Scatter for 5 seconds, then switch to Chase mode permanently.
-maybeChangeMode :: Ghost -> Float-> Ghost
-maybeChangeMode gh t
-  | timer gh < 7                    = gh {mode = Scatter}
-  | timer gh > 7 && timer gh < 27   = gh {mode = Chase}
-  | timer gh > 27 && timer gh < 34  = gh {mode = Scatter}
-  | timer gh > 34 && timer gh < 54  = gh {mode = Chase}
-  | timer gh > 54 && timer gh < 59  = gh {mode = Scatter}
-  | timer gh > 59 && timer gh < 79  = gh {mode = Chase}
-  | timer gh > 79 && timer gh < 84  = gh {mode = Scatter}
-  | timer gh > 84                   = gh {mode = Chase}
+setMode :: Ghost -> GhostMode -> Ghost
+setMode gh mode = gh {mode = mode}
+
+changeMode :: Ghost -> Float -> Ghost
+changeMode gh t
+  | t < 7.0                  = setMode gh Scatter
+  | t > 7 && timer gh < 27   = setMode gh Chase
+  | t > 27 && timer gh < 34  = setMode gh Scatter
+  | t > 34 && timer gh < 54  = setMode gh Chase
+  | t > 54 && timer gh < 59  = setMode gh Scatter
+  | t > 59 && timer gh < 79  = setMode gh Chase
+  | t > 79 && timer gh < 84  = setMode gh Scatter
+  | t > 84                   = setMode gh Chase

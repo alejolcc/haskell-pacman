@@ -14,8 +14,12 @@ renderGhost :: Ghost -> Picture
 renderGhost ghost = ghostRendered
   where
     (gx, gy) = location ghost
-    color = case (Ghost.weak ghost, Ghost.alive ghost) of
-      (_, False) -> black
-      (True, _) -> blue
-      (_, _) -> red
+    color = case (Ghost.weak ghost, Ghost.alive ghost, Ghost.gid ghost) of
+      (_, False, _) -> black
+      (True, _, _) -> blue
+      (_, _, 0) -> red
+      (_, _, 1) -> rose
+      (_, _, 2) -> orange
+      (_, _, 3) -> blue
+      (_, _, _) -> green
     ghostRendered = translate gx gy $ ghostPlayer color

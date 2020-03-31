@@ -5,6 +5,7 @@ import qualified Data.Sequence as Seq
 import qualified Data.Maybe as Maybe
 import qualified Data.List as List
 import Constants
+import qualified DungeonUtils as DGutils
 import qualified Pacman
 import qualified Ghost
 import Graphics.Gloss.Interface.IO.Game
@@ -42,7 +43,7 @@ initialState = Game
     bufferMov = S,
     ghosts = Seq.fromList [ghost0, ghost1, ghost2, ghost3],
     pacman = Pacman.initialPacman,
-    validPos = getValidPos testdungeon,
+    validPos = DGutils.getValidPos testdungeon,
     warpsPos = testWarps,
     timer = 0
   }
@@ -81,7 +82,7 @@ colPacmanPill game = game'
   where
     pos = Pacman.position (pacman game)
     dg = dungeon game
-    game' = case getSpace dg pos of
+    game' = case DGutils.getSpace dg pos of
       SuperPill -> eatSuperPill . eatPill $ game
       _         -> eatPill game
 
@@ -94,7 +95,7 @@ colPacmanGhost game = game'
 
 pacmanVsGhost :: Pacman.Pacman -> Ghost.Ghost -> GameState -> GameState
 pacmanVsGhost pman gh game = case Ghost.weak gh of
-                              False -> initialState {lifes=(lifes game) - 1}
+                              False -> initialState {lifes=(lifes game) - 1, dungeon = (dungeon game)}
                               True -> game {ghosts=ghosts'}
                                 where
                                   ghosts' = Seq.update (Ghost.gid gh) (Ghost.setAlive gh False) (ghosts game)
@@ -153,7 +154,8 @@ validateMov pman mov positions = res
 --------------------
 
 updateGhosts :: Float -> GameState -> GameState
-updateGhosts t game = (updateGhostTimer t) . updateGhostPos . updateGhostDir $ game
+updateGhosts t game =
+  (changeGhostMode t) . (updateGhostTimer t) . updateGhostPos . updateGhostDir $ game
 
 updateGhostDir :: GameState -> GameState
 updateGhostDir game = game{ghosts=ghosts'}
@@ -178,6 +180,13 @@ updateGhostTimer t game = game {ghosts=ghosts'}
     updateTimer = \_ gh -> Ghost.setTimer gh (Ghost.timer gh + t)
     ghosts' = (Seq.mapWithIndex updateTimer ghostSeq)
 
+changeGhostMode :: Float -> GameState -> GameState
+changeGhostMode t game = game {ghosts = ghosts'}
+  where
+    ghostSeq = ghosts game
+    update = \_ gh -> Ghost.changeMode gh t
+    ghosts' = (Seq.mapWithIndex update ghostSeq)
+
 --------------------
 ------ Aux ---------
 --------------------
@@ -196,8 +205,8 @@ eatPill game = game {dungeon=dungeon'}
     (x, y) = Pacman.position (pacman game)
     dg = dungeon game
     row = dg !! y
-    newRow = replace row x Empty
-    dungeon' = replace dg y newRow
+    newRow = DGutils.replace row x Empty
+    dungeon' = DGutils.replace dg y newRow
 
 eatSuperPill :: GameState -> GameState
 eatSuperPill game = game {ghosts=ghosts'}
@@ -205,31 +214,6 @@ eatSuperPill game = game {ghosts=ghosts'}
     ghostSeq = ghosts game
     weaken = \_ ghost -> Ghost.setWeak ghost True
     ghosts' = (Seq.mapWithIndex weaken ghostSeq)
-
-
--- -- Aux
-replace :: [a] -> Int -> a -> [a]
-replace xs pos newVal = take pos xs ++ newVal : drop (pos+1) xs
-
--- Get all valid locations on dungeon
-getValidPos :: Dungeon -> [(Int, Int)]
-getValidPos dg = res
-    where
-      (w, h) = getDungeonSize dg
-      posiblePos = [(x, y) | x <- [0..w], y <- [0..h]]
-      valid = \pos -> Pill == (getSpace dg pos) || Empty == (getSpace dg pos) || SuperPill == (getSpace dg pos)
-      res = filter valid posiblePos
-
-getDungeonSize :: Dungeon -> (Int, Int)
-getDungeonSize dg = (w-1, h-1)
-    where
-      w = length $ dg !! 0
-      h = length dg
-
--- get the space inside of dungeon
-getSpace :: Dungeon -> (Int, Int) -> Space
-getSpace xs (px, py) =
-    xs !! py !! px
 
 plainWarps :: [((Int, Int), (Int, Int))] -> [(Int, Int)]
 plainWarps [(x, y)] = [x]
