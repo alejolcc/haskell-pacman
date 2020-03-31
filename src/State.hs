@@ -19,19 +19,20 @@ data GameState = Game
   {
     lifes :: Int,
     dungeon :: Dungeon,
-    colision :: Maybe Ghost.Ghost,
     bufferMov :: Movement,
     pacman :: Pacman.Pacman,
     ghosts :: Seq.Seq Ghost.Ghost,
     validPos :: [(Int, Int)],
-    warpsPos ::[((Int, Int), (Int, Int))]
+    warpsPos ::[((Int, Int), (Int, Int))],
+    timer :: Float
   }
 
 instance Show GameState where
-  show Game{ bufferMov=mov , pacman=p, ghosts=g, lifes=l, colision=c} =
-    "BuffMov " ++ show mov ++ " " ++ "Lifes " ++ show l ++ " " ++ show c++ "\n" 
+  show Game{ bufferMov=mov , pacman=p, ghosts=g, lifes=l, timer=t} =
+    "BuffMov " ++ show mov ++ " " ++ "Lifes " ++ show l ++ "\n" 
                ++ show p ++ "\n"
                ++ show g
+               ++ show t
 
 initialState :: GameState
 initialState = Game
@@ -39,11 +40,11 @@ initialState = Game
     lifes = 3,
     dungeon = testdungeon,
     bufferMov = S,
-    colision = Nothing,
     ghosts = Seq.fromList [ghost0, ghost1, ghost2, ghost3],
     pacman = Pacman.initialPacman,
     validPos = getValidPos testdungeon,
-    warpsPos = testWarps
+    warpsPos = testWarps,
+    timer = 0
   }
   where
     ghost0 = Ghost.initialGhost 0 (12, 3)
@@ -52,7 +53,7 @@ initialState = Game
     ghost3 = Ghost.initialGhost 3 (15, 3)
 
 updateState :: GameState -> Float -> GameState
-updateState game seconds = resolveColitions . updateGhosts . updatePacman $ game
+updateState game seconds = (setTimer seconds) . resolveColitions . (updateGhosts seconds) . (updatePacman seconds) $ game
 
 printState :: GameState -> IO GameState
 printState game = do
@@ -72,6 +73,9 @@ handleKeys _ game = return game
 resolveColitions :: GameState -> GameState
 resolveColitions game = colPacmanGhost . colPacmanPill $ game
 
+setTimer :: Float -> GameState -> GameState
+setTimer advTime game = game {timer = timer game + advTime}
+
 colPacmanPill :: GameState -> GameState
 colPacmanPill game = game'
   where
@@ -82,12 +86,11 @@ colPacmanPill game = game'
       _         -> eatPill game
 
 colPacmanGhost :: GameState -> GameState
-colPacmanGhost game = game''
+colPacmanGhost game = game'
   where
     pman = pacman game
-    gh = ghostColision game
+    gh = getColision game
     game' = if Maybe.isNothing gh then game else pacmanVsGhost pman (Maybe.fromJust gh) game
-    game'' = game' {colision=gh} --TODO: Remove line, just for debug
 
 pacmanVsGhost :: Pacman.Pacman -> Ghost.Ghost -> GameState -> GameState
 pacmanVsGhost pman gh game = case Ghost.weak gh of
@@ -96,8 +99,8 @@ pacmanVsGhost pman gh game = case Ghost.weak gh of
                                 where
                                   ghosts' = Seq.update (Ghost.gid gh) (Ghost.setAlive gh False) (ghosts game)
 
-ghostColision :: GameState -> Maybe Ghost.Ghost
-ghostColision game = ghost
+getColision :: GameState -> Maybe Ghost.Ghost
+getColision game = ghost
   where
     pmanPos = Pacman.position (pacman game)
     isColision = \ghost -> Ghost.position ghost == pmanPos
@@ -107,8 +110,9 @@ ghostColision game = ghost
 -- Pacman updates --
 --------------------
 
-updatePacman :: GameState -> GameState
-updatePacman game = handleWarp . updatePacmanPos . updatePacmanDir $ game
+-- TODO: Use timer to handle mount
+updatePacman :: Float -> GameState -> GameState
+updatePacman t game = handleWarp . updatePacmanPos . updatePacmanDir $ game
 
 updatePacmanDir :: GameState -> GameState
 updatePacmanDir game = newState
@@ -148,8 +152,8 @@ validateMov pman mov positions = res
 -- Ghosts updates --
 --------------------
 
-updateGhosts :: GameState -> GameState
-updateGhosts game = updateGhostPos . updateGhostDir $ game
+updateGhosts :: Float -> GameState -> GameState
+updateGhosts t game = (updateGhostTimer t) . updateGhostPos . updateGhostDir $ game
 
 updateGhostDir :: GameState -> GameState
 updateGhostDir game = game{ghosts=ghosts'}
@@ -172,10 +176,17 @@ getNextMove gh game = gh'
 
 updateGhostPos :: GameState -> GameState
 updateGhostPos game = game {ghosts=ghosts'}
-    where
-      ghostSeq = ghosts game
-      moveGhost = \_ gh -> Ghost.moveGhost gh (Ghost.direction gh)
-      ghosts' = (Seq.mapWithIndex moveGhost ghostSeq)
+  where
+    ghostSeq = ghosts game
+    moveGhost = \_ gh -> Ghost.moveGhost gh (Ghost.direction gh)
+    ghosts' = (Seq.mapWithIndex moveGhost ghostSeq)
+
+updateGhostTimer :: Float -> GameState -> GameState
+updateGhostTimer t game = game {ghosts=ghosts'}
+  where
+    ghostSeq = ghosts game
+    updateTimer = \_ gh -> Ghost.setTimer gh (Ghost.timer gh + t)
+    ghosts' = (Seq.mapWithIndex updateTimer ghostSeq)
 
 -- 0 - Blinky
 -- 1 - Pinky
