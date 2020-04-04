@@ -1,5 +1,7 @@
 module IA where
 
+-- TODO: Handle randomness with real random seed
+
 import Algorithm.Search
 import qualified Data.Maybe as Maybe
 import Constants
@@ -7,7 +9,10 @@ import qualified Ghost
 import qualified Pacman
 import DungeonUtils as DGutils
 
--- TODO: Handle randomness with real random seed
+---------------------
+-- AStar Algorithm --
+---------------------
+
 neighbors (x, y) = [(x, y + 1), (x - 1, y), (x + 1, y), (x, y - 1)]
 dist (x1, y1) (x2, y2) = abs (y2 - y1) + abs (x2 - x1)
 
@@ -27,8 +32,10 @@ firstMove ((x, y):xs) (x', y') = case (x-x', y-y') of
                                 (0, 1) -> U
                                 (0, -1) -> D
                                 _ -> U
+-----------------
+-- Ghost Rules --
+----------------
 
--- TODO: ghosts may never choose to reverse their direction of travel
 updateGhost :: Int -> Ghost.Ghost -> Pacman.Pacman -> [(Int, Int)] -> Ghost.Ghost
 updateGhost gid gh pman valid = gh'
   where
@@ -37,10 +44,27 @@ updateGhost gid gh pman valid = gh'
       Chase -> selectChaseTarget gid gh pman valid
       Scatter -> selectScatterTarget gid gh valid
       Frightened -> selectFrightenedTarget gid gh pman valid
-    valid' = if Ghost.mode gh == Frightened then removeItem (Pacman.position pman) valid else valid
+    valid' = (removeInvalidTiles gh pman valid)
     move = nextMove start end valid'
     gh' = if not (Ghost.isMoving gh) then Ghost.setDirection gh move else gh
 
+removeInvalidTiles :: Ghost.Ghost -> Pacman.Pacman -> [(Int, Int)] -> [(Int, Int)]
+removeInvalidTiles gh pman valid = valid''
+  where
+    tile = case Ghost.direction gh of
+      U -> DGutils.getNeighborTile (Ghost.position gh) D
+      D -> DGutils.getNeighborTile (Ghost.position gh) U
+      R -> DGutils.getNeighborTile (Ghost.position gh) L
+      L -> DGutils.getNeighborTile (Ghost.position gh) R
+      S -> DGutils.getNeighborTile (Ghost.position gh) S
+    valid' = removeItem tile valid
+    valid'' = if Ghost.mode gh == Frightened then
+                removeItem (Pacman.position pman) valid'
+              else valid'
+
+removeItem _ []                 = []
+removeItem x (y:ys) | x == y    = removeItem x ys
+                    | otherwise = y : removeItem x ys
 -- 0 - Blinky
 -- 1 - Pinky
 -- 2 - Inky
@@ -89,7 +113,3 @@ nextNspaces n pos dir = case (pos, dir) of
   ((x, y), L) -> (x-n, y+n)
   ((x, y), R) -> (x+n, y)
   _ -> pos
-
-removeItem _ []                 = []
-removeItem x (y:ys) | x == y    = removeItem x ys
-                    | otherwise = y : removeItem x ys

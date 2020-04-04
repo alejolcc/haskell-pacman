@@ -3,6 +3,13 @@ module DungeonUtils where
 import Constants
 import System.Random
 
+getNeighborTile :: (Int, Int) -> Movement -> (Int, Int)
+getNeighborTile (x, y) U = (x, y+1)
+getNeighborTile (x, y) D = (x, y-1)
+getNeighborTile (x, y) L = (x-1, y)
+getNeighborTile (x, y) R = (x+1, y)
+getNeighborTile (x, y) S = (x, y)
+
 replace :: [a] -> Int -> a -> [a]
 replace xs pos newVal = take pos xs ++ newVal : drop (pos+1) xs
 
