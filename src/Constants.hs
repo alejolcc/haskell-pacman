@@ -2,6 +2,7 @@ module Constants where
 
 data Movement = U | D | L | R | S  deriving Show
 data Space = Pill | Empty | Wall | SuperPill deriving (Show, Eq)
+data GhostMode = Chase | Scatter | Frightened deriving (Show, Eq)
 
 type Dungeon = [[Space]]
 

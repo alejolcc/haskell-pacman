@@ -2,8 +2,6 @@ module Ghost where
 
 import Constants
 
-data GhostMode = Chase | Scatter | Frightened
-
 data Ghost = Ghost
   {
     gid :: Int,
@@ -26,7 +24,7 @@ instance Show Ghost where
               ++ "Weak "  ++ show (weak gh)       ++ " "
               ++ "Dir "   ++ show (direction gh)  ++ " "
               ++ "Alive " ++ show (alive gh)      ++ " "
-              ++ "Timer " ++ show (timer gh)      ++ "\n"
+              ++ "Mode"   ++ show (mode gh)       ++ "\n"
 
 
 initialGhost :: Int -> (Int, Int) -> Ghost
@@ -63,7 +61,7 @@ setDirection ghost next = ghost {direction=next}
 
 setWeak :: Ghost -> Bool -> Ghost
 setWeak gh True = gh {weak=True, speed=5}
-setWeak gh False = gh {weak=True, speed=15}
+setWeak gh False = gh {weak=False, speed=5}
 
 setAlive :: Ghost -> Bool -> Ghost
 setAlive gh alive = gh {alive=alive}
@@ -85,15 +83,15 @@ setTimer gh t = case alive gh of
 -- Scatter for 5 seconds, then Chase for 20 seconds.
 -- Scatter for 5 seconds, then switch to Chase mode permanently.
 setMode :: Ghost -> GhostMode -> Ghost
-setMode gh mode = gh {mode = mode}
+setMode gh m = gh {mode = m}
 
 changeMode :: Ghost -> Float -> Ghost
 changeMode gh t
-  | t < 7.0                  = setMode gh Scatter
-  | t > 7 && timer gh < 27   = setMode gh Chase
-  | t > 27 && timer gh < 34  = setMode gh Scatter
-  | t > 34 && timer gh < 54  = setMode gh Chase
-  | t > 54 && timer gh < 59  = setMode gh Scatter
-  | t > 59 && timer gh < 79  = setMode gh Chase
-  | t > 79 && timer gh < 84  = setMode gh Scatter
-  | t > 84                   = setMode gh Chase
+  | t < 7             = setMode gh Scatter
+  | t > 7  && t < 27  = setMode gh Chase
+  | t > 27 && t < 34  = setMode gh Scatter
+  | t > 34 && t < 54  = setMode gh Chase
+  | t > 54 && t < 59  = setMode gh Scatter
+  | t > 59 && t < 79  = setMode gh Chase
+  | t > 79 && t < 84  = setMode gh Scatter
+  | t > 84            = setMode gh Chase

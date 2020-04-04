@@ -28,4 +28,12 @@ getRandomTile :: Int -> [(Int, Int)] -> (Int, Int)
 getRandomTile n tiles = tiles !! index
   where
     limit = length tiles
-    (index, _) = (randomR (1, limit) (mkStdGen n))
+    (rand, _) = random (mkStdGen n)
+    index = rand `mod` limit
+
+-- TODO: Why this function doesn work?
+-- getRandomTile :: Int -> [(Int, Int)] -> (Int, Int)
+-- getRandomTile n tiles = tiles !! index
+--   where
+--     limit = length tiles
+--     (index, _) = (randomR (1, limit) (mkStdGen n))

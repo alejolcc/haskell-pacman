@@ -16,6 +16,9 @@ testdungeon = reverse [[Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,W
 testWarps :: [((Int, Int), (Int, Int))]
 testWarps = [((-1, 1), (27, 1)), ((28, 1), (0, 1))]
 
+eTimer :: Float
+eTimer = 3
+
 data GameState = Game
   {
     lifes :: Int,
@@ -25,15 +28,17 @@ data GameState = Game
     ghosts :: Seq.Seq Ghost.Ghost,
     validPos :: [(Int, Int)],
     warpsPos ::[((Int, Int), (Int, Int))],
-    timer :: Float
+    globalTimer :: Float,
+    energizerTimer :: Float
   }
 
 instance Show GameState where
-  show Game{ bufferMov=mov , pacman=p, ghosts=g, lifes=l, timer=t} =
-    "BuffMov " ++ show mov ++ " " ++ "Lifes " ++ show l ++ "\n" 
-               ++ show p ++ "\n"
-               ++ show g
-               ++ show t
+  show game = "State "
+    ++ "BuffMov "        ++ show (bufferMov game)      ++ " "
+    ++ "globalTimer "    ++ show (globalTimer game)    ++ " "
+    ++ "energizerTimer " ++ show (energizerTimer game) ++ "\n"
+    ++ "Pacman "         ++ show (pacman game)         ++ "\n"
+    ++ "Ghosts "         ++ show (ghosts game)         ++ " "
 
 initialState :: GameState
 initialState = Game
@@ -45,7 +50,8 @@ initialState = Game
     pacman = Pacman.initialPacman,
     validPos = DGutils.getValidPos testdungeon,
     warpsPos = testWarps,
-    timer = 0
+    globalTimer= 0,
+    energizerTimer = 0
   }
   where
     ghost0 = Ghost.initialGhost 0 (12, 3)
@@ -72,8 +78,13 @@ handleKeys (EventKey (SpecialKey KeySpace) Down _ _) game = return initialState
 handleKeys _ game = return game
 
 setTimer :: Float -> GameState -> GameState
-setTimer advTime game = game {timer = timer game + advTime}
+setTimer advTime game
+  | energizerTimer game < 0 = game {globalTimer = globalTimer game + advTime}
+  | energizerTimer game >= 0 = game {energizerTimer = energizerTimer game - advTime}
 
+--------------------
+-- Game Colitions --
+--------------------
 resolveColitions :: GameState -> GameState
 resolveColitions game = colPacmanGhost . colPacmanPill $ game
 
@@ -155,7 +166,7 @@ validateMov pman mov positions = res
 
 updateGhosts :: Float -> GameState -> GameState
 updateGhosts t game =
-  (changeGhostMode t) . (updateGhostTimer t) . updateGhostPos . updateGhostDir $ game
+  enforceGhost . changeGhostMode . (updateGhostTimer t) . updateGhostPos . updateGhostDir $ game
 
 updateGhostDir :: GameState -> GameState
 updateGhostDir game = game{ghosts=ghosts'}
@@ -163,15 +174,15 @@ updateGhostDir game = game{ghosts=ghosts'}
     pman = pacman game
     valid = validPos game
     ghostSeq = ghosts game
-    updateGhosts = \gid gh -> IA.updateGhost gid gh pman valid
-    ghosts' = (Seq.mapWithIndex updateGhosts ghostSeq)
+    update = \gid gh -> IA.updateGhost gid gh pman valid
+    ghosts' = (Seq.mapWithIndex update ghostSeq)
 
 updateGhostPos :: GameState -> GameState
 updateGhostPos game = game {ghosts=ghosts'}
   where
     ghostSeq = ghosts game
-    moveGhost = \_ gh -> Ghost.moveGhost gh (Ghost.direction gh)
-    ghosts' = (Seq.mapWithIndex moveGhost ghostSeq)
+    update = \_ gh -> Ghost.moveGhost gh (Ghost.direction gh)
+    ghosts' = (Seq.mapWithIndex update ghostSeq)
 
 updateGhostTimer :: Float -> GameState -> GameState
 updateGhostTimer t game = game {ghosts=ghosts'}
@@ -180,13 +191,24 @@ updateGhostTimer t game = game {ghosts=ghosts'}
     updateTimer = \_ gh -> Ghost.setTimer gh (Ghost.timer gh + t)
     ghosts' = (Seq.mapWithIndex updateTimer ghostSeq)
 
-changeGhostMode :: Float -> GameState -> GameState
-changeGhostMode t game = game {ghosts = ghosts'}
-  where
-    ghostSeq = ghosts game
-    update = \_ gh -> Ghost.changeMode gh t
-    ghosts' = (Seq.mapWithIndex update ghostSeq)
+changeGhostMode :: GameState -> GameState
+changeGhostMode game
+  | energizerTimer game > 0 = game
+  | energizerTimer game <= 0 = game {ghosts = ghosts'}
+    where
+      t = globalTimer game
+      ghostSeq = ghosts game
+      update = \_ gh -> Ghost.changeMode gh t
+      ghosts' = (Seq.mapWithIndex update ghostSeq)
 
+enforceGhost :: GameState -> GameState
+enforceGhost game
+  | energizerTimer game > 0 = game
+  | energizerTimer game <= 0 = game {ghosts = ghosts'}
+    where
+      ghostSeq = ghosts game
+      update = \_ gh -> Ghost.setWeak gh False
+      ghosts' = (Seq.mapWithIndex update ghostSeq)
 --------------------
 ------ Aux ---------
 --------------------
@@ -209,11 +231,13 @@ eatPill game = game {dungeon=dungeon'}
     dungeon' = DGutils.replace dg y newRow
 
 eatSuperPill :: GameState -> GameState
-eatSuperPill game = game {ghosts=ghosts'}
+eatSuperPill game = game {ghosts=ghosts'', energizerTimer=eTimer}
   where
     ghostSeq = ghosts game
     weaken = \_ ghost -> Ghost.setWeak ghost True
+    setFrightened = \_ ghost -> Ghost.setMode ghost Frightened
     ghosts' = (Seq.mapWithIndex weaken ghostSeq)
+    ghosts'' = (Seq.mapWithIndex setFrightened ghosts')
 
 plainWarps :: [((Int, Int), (Int, Int))] -> [(Int, Int)]
 plainWarps [(x, y)] = [x]
