@@ -12,11 +12,11 @@ data Pacman = Pacman
   } deriving Show
 
 
-initialPacman :: Pacman
-initialPacman = Pacman
+initialPacman :: (Int, Int) -> Pacman
+initialPacman pos = Pacman
   {
-    location = toCanvas (1, 1),
-    position = (1, 1),
+    location = toCanvas pos,
+    position = pos,
     speed = 5,
     mouth = 1,
     direction = S

@@ -6,6 +6,15 @@ data GhostMode = Chase | Scatter | Frightened deriving (Show, Eq)
 
 type Dungeon = [[Space]]
 
+data Config = Config
+   {
+     configDungeon  :: Dungeon,
+     configLifes    :: Int,
+     configGhosts   :: [(Int, Int)],
+     configPacman   :: (Int, Int),
+     configWarps    :: [((Int, Int), (Int, Int))]
+   } deriving Show
+
 dgPosX :: Float
 dgPosX = (-600)
 

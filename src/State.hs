@@ -17,7 +17,7 @@ testWarps :: [((Int, Int), (Int, Int))]
 testWarps = [((-1, 1), (27, 1)), ((28, 1), (0, 1))]
 
 eTimer :: Float
-eTimer = 3
+eTimer = 10
 
 data GameState = Game
   {
@@ -29,7 +29,8 @@ data GameState = Game
     validPos :: [(Int, Int)],
     warpsPos ::[((Int, Int), (Int, Int))],
     globalTimer :: Float,
-    energizerTimer :: Float
+    energizerTimer :: Float,
+    config :: Config
   }
 
 instance Show GameState where
@@ -47,7 +48,7 @@ initialState = Game
     dungeon = testdungeon,
     bufferMov = S,
     ghosts = Seq.fromList [ghost0, ghost1, ghost2, ghost3],
-    pacman = Pacman.initialPacman,
+    pacman = Pacman.initialPacman (1, 1),
     validPos = DGutils.getValidPos testdungeon,
     warpsPos = testWarps,
     globalTimer= 0,
@@ -58,6 +59,29 @@ initialState = Game
     ghost1 = Ghost.initialGhost 1 (13, 3)
     ghost2 = Ghost.initialGhost 2 (14, 3)
     ghost3 = Ghost.initialGhost 3 (15, 3)
+
+createInitialState :: Config -> GameState
+createInitialState config = Game
+  {
+    lifes           = lifes',
+    dungeon         = dungeon',
+    bufferMov       = S,
+    ghosts          = Seq.fromList $ map createGhost (zip [0, 1, 2, 3] ghosts'),
+    pacman          = pacman',
+    validPos        = validPos',
+    warpsPos        = warpsPos',
+    globalTimer     = 0,
+    energizerTimer  = 0,
+    config          = config
+  }
+  where
+    dungeon'    = configDungeon config
+    lifes'      = configLifes config
+    ghosts'     = configGhosts config
+    pacman'     = Pacman.initialPacman (configPacman config)
+    validPos'   = DGutils.getValidPos dungeon'
+    warpsPos'   = configWarps config
+    createGhost = \(x, y) -> (Ghost.initialGhost x y)
 
 updateState :: GameState -> Float -> GameState
 updateState game seconds =
@@ -74,7 +98,7 @@ handleKeys (EventKey (SpecialKey KeyUp) Down _ _) game = return game {bufferMov 
 handleKeys (EventKey (SpecialKey KeyDown) Down _ _) game = return game {bufferMov = D}
 handleKeys (EventKey (SpecialKey KeyLeft) Down _ _) game = return game {bufferMov = L}
 handleKeys (EventKey (SpecialKey KeyRight) Down _ _) game = return game {bufferMov = R}
-handleKeys (EventKey (SpecialKey KeySpace) Down _ _) game = return initialState
+handleKeys (EventKey (SpecialKey KeySpace) Down _ _) game = return $ createInitialState (config game)
 handleKeys _ game = return game
 
 setTimer :: Float -> GameState -> GameState
@@ -106,7 +130,7 @@ colPacmanGhost game = game'
 
 pacmanVsGhost :: Pacman.Pacman -> Ghost.Ghost -> GameState -> GameState
 pacmanVsGhost pman gh game = case Ghost.weak gh of
-                              False -> initialState {lifes=(lifes game) - 1, dungeon = (dungeon game)}
+                              False -> (createInitialState (config game)) {lifes=(lifes game) - 1, dungeon = (dungeon game)}
                               True -> game {ghosts=ghosts'}
                                 where
                                   ghosts' = Seq.update (Ghost.gid gh) (Ghost.setAlive gh False) (ghosts game)
