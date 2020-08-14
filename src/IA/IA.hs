@@ -48,6 +48,8 @@ updateGhost gid gh pman valid = gh'
     move = nextMove start end valid'
     gh' = if not (Ghost.isMoving gh) then Ghost.setDirection gh move else gh
 
+-- we have to remove th epacman position from valid list positions if the ghost is frighten
+-- also, we have to remove the previous move of the ghost, because they cant go back 
 removeInvalidTiles :: Ghost.Ghost -> Pacman.Pacman -> [(Int, Int)] -> [(Int, Int)]
 removeInvalidTiles gh pman valid = valid''
   where

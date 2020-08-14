@@ -32,7 +32,7 @@ heightBox = 30
 
 -- Map a canvas position to dg box
 toDungeon :: (Float, Float) -> (Int, Int)
-toDungeon (x, y) = (round (x / widthBox), round (y / heightBox))
+toDungeon (x, y) = (truncate (x / widthBox), truncate (y / heightBox))
 
 toCanvas :: (Int, Int) -> (Float, Float)
 toCanvas (x, y) = (fromIntegral x * widthBox, fromIntegral y * heightBox)

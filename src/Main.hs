@@ -26,10 +26,10 @@ main = do
 defaultConfig :: Config
 defaultConfig = Config
   {
-    -- configDungeon = testdungeon,
-    configDungeon = [],
+    configDungeon = testdungeon,
+    -- configDungeon = [],
     configLifes   = 3,
     configGhosts  = [(12, 3), (13, 3), (14, 3), (15, 3)],
-    configPacman  = (1, 2),
+    configPacman  = (1, 1),
     configWarps   = [((-1, 1), (27, 1)), ((28, 1), (0, 1))]
   }

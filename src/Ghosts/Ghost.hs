@@ -88,10 +88,10 @@ setMode gh m = gh {mode = m}
 changeMode :: Ghost -> Float -> Ghost
 changeMode gh t
   | t < 7             = setMode gh Scatter
-  | t > 7  && t < 27  = setMode gh Chase
-  | t > 27 && t < 34  = setMode gh Scatter
-  | t > 34 && t < 54  = setMode gh Chase
-  | t > 54 && t < 59  = setMode gh Scatter
-  | t > 59 && t < 79  = setMode gh Chase
-  | t > 79 && t < 84  = setMode gh Scatter
-  | t > 84            = setMode gh Chase
+  | t >= 7  && t < 27  = setMode gh Chase
+  | t >= 27 && t < 34  = setMode gh Scatter
+  | t >= 34 && t < 54  = setMode gh Chase
+  | t >= 54 && t < 59  = setMode gh Scatter
+  | t >= 59 && t < 79  = setMode gh Chase
+  | t >= 79 && t < 84  = setMode gh Scatter
+  | t >= 84            = setMode gh Chase

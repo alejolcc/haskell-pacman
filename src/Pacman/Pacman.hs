@@ -23,7 +23,7 @@ initialPacman pos = Pacman
   }
 
 movePacman :: Pacman -> Movement -> Pacman
-movePacman pm mov = updateMouth $ (pm {location=loc, position=(toDungeon loc)})
+movePacman pm mov = updateMouth $ (pm {location=loc, position=pos})
   where
     (x, y) = location pm
     speedPm = speed pm
@@ -33,6 +33,8 @@ movePacman pm mov = updateMouth $ (pm {location=loc, position=(toDungeon loc)})
       L -> (x-speedPm, y)
       R -> (x+speedPm, y)
       S -> (x, y)
+    pm' = pm {location=loc}
+    pos = if not (Pacman.isMoving pm') then toDungeon loc else position pm
 
 setPosition :: Pacman -> (Int, Int) -> Pacman
 setPosition pm pos = pm {position=pos}

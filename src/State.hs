@@ -255,13 +255,15 @@ eatPill game = game {dungeon=dungeon'}
     dungeon' = DGutils.replace dg y newRow
 
 eatSuperPill :: GameState -> GameState
-eatSuperPill game = game {ghosts=ghosts'', energizerTimer=eTimer}
+eatSuperPill game = game {ghosts=ghosts'', energizerTimer=eTimer, pacman=pacman'}
   where
     ghostSeq = ghosts game
+    pman = pacman game
     weaken = \_ ghost -> Ghost.setWeak ghost True
     setFrightened = \_ ghost -> Ghost.setMode ghost Frightened
     ghosts' = (Seq.mapWithIndex weaken ghostSeq)
     ghosts'' = (Seq.mapWithIndex setFrightened ghosts')
+    pacman' = Pacman.setSpeed pman 6
 
 plainWarps :: [((Int, Int), (Int, Int))] -> [(Int, Int)]
 plainWarps [(x, y)] = [x]
