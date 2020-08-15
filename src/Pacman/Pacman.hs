@@ -34,7 +34,7 @@ movePacman pm mov = updateMouth $ (pm {location=loc, position=pos})
       R -> (x+speedPm, y)
       S -> (x, y)
     pm' = pm {location=loc}
-    pos = if not (Pacman.isMoving pm') then toDungeon loc else position pm
+    pos = if not (isMoving pm') then toDungeon loc else position pm
 
 setPosition :: Pacman -> (Int, Int) -> Pacman
 setPosition pm pos = pm {position=pos}

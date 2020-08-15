@@ -8,6 +8,7 @@ import Constants
 import qualified Ghost
 import qualified Pacman
 import DungeonUtils as DGutils
+import Data.List
 
 ---------------------
 -- AStar Algorithm --
@@ -88,7 +89,7 @@ selectChaseTarget 0 gh pman valid = target
   where
     target = Pacman.position pman
 
-selectChaseTarget 1 gh pman valid = (nextNspaces 4 pos dir)
+selectChaseTarget 1 gh pman valid = (nextNspaces 4 pos dir valid)
   where
     dir = Pacman.direction pman
     pos = Pacman.position pman
@@ -98,8 +99,9 @@ selectChaseTarget 2 gh pman valid = target
     dir = Pacman.direction pman
     pos = Pacman.position pman
     (gx, gy) = Ghost.position gh
-    (rx, ry) = (nextNspaces 2 pos dir)
-    target = (rx + (-gx), ry + (-gy))
+    (rx, ry) = (nextNspaces 2 pos dir valid)
+    selTile = (rx + (-gx), ry + (-gy))
+    target = if elem selTile valid then selTile else pos
 
 selectChaseTarget 3 gh pman valid = target
   where
@@ -107,11 +109,13 @@ selectChaseTarget 3 gh pman valid = target
     distance = dist (Ghost.position gh) ppos
     target = if distance > 8 then ppos else (1, 1)
 
--- TODO: get only valid positions
-nextNspaces :: Int -> (Int, Int) -> Movement -> (Int, Int)
-nextNspaces n pos dir = case (pos, dir) of
-  ((x, y), U) -> (x, y+n)
-  ((x, y), D) -> (x, y-n)
-  ((x, y), L) -> (x-n, y+n)
-  ((x, y), R) -> (x+n, y)
-  _ -> pos
+nextNspaces :: Int -> (Int, Int) -> Movement -> [(Int, Int)] -> (Int, Int)
+nextNspaces n (x, y) mov valid = if tileList == [] then (x, y) else head tileList
+  where
+    posList = case mov of
+      U -> [(x, y) | y <- [y..y+n]]
+      D -> [(x, y) | y <- [y..y-n]]
+      L -> [(x, y) | x <- [x..x-n]]
+      R -> [(x, y) | x <- [x..x+n]]
+    foo = \tile -> elem tile valid
+    tileList = filter foo posList

@@ -42,7 +42,7 @@ initialGhost gid pos = Ghost
   }
 
 moveGhost :: Ghost -> Movement -> Ghost
-moveGhost gh mov = gh {location=loc, position=(toDungeon loc)}
+moveGhost gh mov = gh {location=loc, position=pos}
   where
     (x, y) = location gh
     speedPm = speed gh
@@ -52,6 +52,8 @@ moveGhost gh mov = gh {location=loc, position=(toDungeon loc)}
       L -> (x-speedPm, y)
       R -> (x+speedPm, y)
       S -> (x, y)
+    gh' = gh {location=loc}
+    pos = if not (isMoving gh') then toDungeon loc else position gh
 
 setPosition :: Ghost -> (Int, Int) -> Ghost
 setPosition ghost pos = ghost {position=pos}
