@@ -117,5 +117,6 @@ nextNspaces n (x, y) mov valid = if tileList == [] then (x, y) else head tileLis
       D -> [(x, y) | y <- [y..y-n]]
       L -> [(x, y) | x <- [x..x-n]]
       R -> [(x, y) | x <- [x..x+n]]
+      _ -> [(x,y)]
     foo = \tile -> elem tile valid
     tileList = filter foo posList

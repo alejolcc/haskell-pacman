@@ -1,7 +1,7 @@
 module Constants where
 
 data Movement = U | D | L | R | S  deriving Show
-data Space = Pill | Empty | Wall | SuperPill deriving (Show, Eq)
+data Space = Pill | Empty | Wall | SuperPill | Pman | Gh | Warp deriving (Show, Eq)
 data GhostMode = Chase | Scatter | Frightened deriving (Show, Eq)
 
 type Dungeon = [[Space]]
@@ -16,10 +16,10 @@ data Config = Config
    } deriving Show
 
 dgPosX :: Float
-dgPosX = (-600)
+dgPosX = (-650)
 
 dgPosY :: Float
-dgPosY = (-300)
+dgPosY = (-390)
 
 fps :: Int
 fps = 20
