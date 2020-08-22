@@ -110,7 +110,7 @@ selectChaseTarget 3 gh pman valid = target
     target = if distance > 8 then ppos else (1, 1)
 
 nextNspaces :: Int -> (Int, Int) -> Movement -> [(Int, Int)] -> (Int, Int)
-nextNspaces n (x, y) mov valid = if tileList == [] then (x, y) else head tileList
+nextNspaces n (x, y) mov valid = if tileList == [] then (x, y) else last tileList
   where
     posList = case mov of
       U -> [(x, y) | y <- [y..y+n]]

@@ -4,6 +4,7 @@ import System.IO
 import Control.Monad
 import Data.Maybe
 import Data.List
+import Data.Char
 
 import Constants
 
@@ -15,7 +16,6 @@ parseArgs args config = do
   let configLines = lines configFile
   let config' = foldr parseConfLine config configLines
   let config'' = plainDungeon . findGhosts . findPacman $ config'
-  -- print qwe
   return config''
 
 parseConfLine :: String -> Config -> Config
@@ -58,10 +58,12 @@ parseDungeon str config = config {configDungeon = ((configDungeon config)++[(map
 f :: Char -> Space
 f '#' = Wall
 f '.' = Pill
-f 'P' = SuperPill
+f 'O' = SuperPill
 f ' ' = Empty
-f '*' = Pman
+f 'P' = Pman
 f 'G' = Gh
+f x
+  | isNumber x = Warp $ digitToInt x
 
 findPacman :: Config -> Config
 findPacman config = config {configPacman = (x, y)}
@@ -92,4 +94,5 @@ plainDungeon config = config {configDungeon=dungeon'}
 g :: Space -> Space
 g Pman = Pill
 g Gh = Empty
+g (Warp _) = Empty
 g x = x

@@ -48,17 +48,31 @@ setSpeed pm speed = pm {speed=speed}
 handleWarp :: Pacman -> [((Int, Int), (Int, Int))] -> Pacman
 handleWarp pm warps = pm {location=loc', position=pos'}
   where
-    pos' = getWarpMap (position pm) warps
+    mov = direction pm
+    pos' = getWarpMap (position pm) mov warps
     loc' = toCanvas pos'
 
-getWarpMap :: (Int, Int) -> [((Int, Int),(Int, Int))] -> (Int, Int)
-getWarpMap x [(y, z)]
+getWarpMap :: (Int, Int) -> Movement -> [((Int, Int),(Int, Int))] -> (Int, Int)
+getWarpMap x m [((x1, y1), (x2, y2))]
+  | x == (x1, y1) =
+  case m of
+    U -> (x2, y2 + 1)
+    D -> (x2, y2 - 1)
+    R -> (x2 + 1, y2)
+    L -> (x2 - 1, y2)
+
+getWarpMap x m [((x1, y1), (x2, y2))]
+  | x == (x2, y2) =
+  case m of
+    U -> (x1, y1 + 1)
+    D -> (x1, y1 - 1)
+    R -> (x1 + 1, y1)
+    L -> (x1 - 1, y1)
+
+getWarpMap x _ ((y, z):xs)
   | x == y = z
 
-getWarpMap x ((y, z):xs)
-  | x == y = z
-
-getWarpMap x (y:ys) = getWarpMap x ys
+getWarpMap x m (y:ys) = getWarpMap x m ys
 
 updateMouth :: Pacman-> Pacman
 updateMouth pm = pm {mouth=mouth'}

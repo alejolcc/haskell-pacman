@@ -148,7 +148,8 @@ getColision game = ghost
 
 -- TODO: Use timer to handle mouth
 updatePacman :: Float -> GameState -> GameState
-updatePacman t game = handleWarp . updatePacmanPos . updatePacmanDir $ game
+updatePacman t game =
+  slowPacman . handleWarp . updatePacmanPos . updatePacmanDir $ game
 
 updatePacmanDir :: GameState -> GameState
 updatePacmanDir game = newState
@@ -183,6 +184,16 @@ validateMov pman mov positions = res
       L  -> (elem (x-1,y) $ positions) || moving
       R  -> (elem (x+1,y) $ positions) || moving
       S  -> (elem (x,y) $ positions)
+
+slowPacman :: GameState -> GameState
+slowPacman game
+  | energizerTimer game > 0 = game
+  | energizerTimer game <= 0 = game {pacman = pacman'}
+    where
+      pman = pacman game
+      pacman' = if not (Pacman.isMoving pman)
+                then Pacman.setSpeed pman 5
+                else pman
 
 --------------------
 -- Ghosts updates --
@@ -231,7 +242,7 @@ enforceGhost game
   | energizerTimer game <= 0 = game {ghosts = ghosts'}
     where
       ghostSeq = ghosts game
-      update = \_ gh -> Ghost.setWeak gh False
+      update = \_ gh -> Ghost.setAlive (Ghost.setWeak gh False) True
       ghosts' = (Seq.mapWithIndex update ghostSeq)
 --------------------
 ------ Aux ---------
@@ -266,5 +277,5 @@ eatSuperPill game = game {ghosts=ghosts'', energizerTimer=eTimer, pacman=pacman'
     pacman' = Pacman.setSpeed pman 6
 
 plainWarps :: [((Int, Int), (Int, Int))] -> [(Int, Int)]
-plainWarps [(x, y)] = [x]
-plainWarps ((x, y): xs) = [x] ++ plainWarps xs
+plainWarps [(x, y)] = [x, y]
+plainWarps ((x, y): xs) = [x, y] ++ plainWarps xs
