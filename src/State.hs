@@ -254,7 +254,12 @@ handleWarp game = game {pacman=pacman'}
     pman = pacman game
     pos = Pacman.position pman
     warps = warpsPos game
-    pacman' = if elem pos (plainWarps warps) then Pacman.handleWarp pman warps else pman
+    valid = validPos game
+    warpedPman = Pacman.handleWarp pman warps
+    pacman' = if elem pos (plainWarps warps) && elem (Pacman.position warpedPman) valid 
+              then warpedPman
+              else pman
+
 
 eatPill :: GameState -> GameState
 eatPill game = game {dungeon=dungeon'}

@@ -53,7 +53,7 @@ handleWarp pm warps = pm {location=loc', position=pos'}
     loc' = toCanvas pos'
 
 getWarpMap :: (Int, Int) -> Movement -> [((Int, Int),(Int, Int))] -> (Int, Int)
-getWarpMap x m [((x1, y1), (x2, y2))]
+getWarpMap x m (((x1, y1), (x2, y2)) : xs)
   | x == (x1, y1) =
   case m of
     U -> (x2, y2 + 1)
@@ -61,16 +61,13 @@ getWarpMap x m [((x1, y1), (x2, y2))]
     R -> (x2 + 1, y2)
     L -> (x2 - 1, y2)
 
-getWarpMap x m [((x1, y1), (x2, y2))]
+getWarpMap x m (((x1, y1), (x2, y2)) : xs)
   | x == (x2, y2) =
   case m of
     U -> (x1, y1 + 1)
     D -> (x1, y1 - 1)
     R -> (x1 + 1, y1)
     L -> (x1 - 1, y1)
-
-getWarpMap x _ ((y, z):xs)
-  | x == y = z
 
 getWarpMap x m (y:ys) = getWarpMap x m ys
 
