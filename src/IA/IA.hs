@@ -37,14 +37,14 @@ firstMove ((x, y):xs) (x', y') = case (x-x', y-y') of
 -- Ghost Rules --
 ----------------
 
-updateGhost :: Int -> Ghost.Ghost -> Pacman.Pacman -> [(Int, Int)] -> Ghost.Ghost
-updateGhost gid gh pman valid = gh'
+updateGhost :: Int -> Ghost.Ghost -> Pacman.Pacman -> [(Int, Int)] -> Int -> Ghost.Ghost
+updateGhost gid gh pman valid rand = gh'
   where
     start = Ghost.position gh
     end = case Ghost.mode gh of
       Chase -> selectChaseTarget gid gh pman valid
-      Scatter -> selectScatterTarget gid gh valid
-      Frightened -> selectFrightenedTarget gid gh pman valid
+      Scatter -> selectScatterTarget gid rand valid
+      Frightened -> selectFrightenedTarget gid rand pman valid
     valid' = (removeInvalidTiles gh pman valid)
     move = nextMove start end valid'
     gh' = if not (Ghost.isMoving gh) then Ghost.setDirection gh move else gh
@@ -75,11 +75,11 @@ removeItem x (y:ys) | x == y    = removeItem x ys
 -- https://gameinternals.com/understanding-pac-man-ghost-behavior
 
 -- TODO: Use a method to generate a loop in a corner for a random dungeon
-selectScatterTarget :: Int -> Ghost.Ghost -> [(Int, Int)] -> (Int, Int)
-selectScatterTarget gid gh valid = DGutils.getRandomTile (gid + round (Ghost.timer gh)) valid
+selectScatterTarget :: Int -> Int -> [(Int, Int)] -> (Int, Int)
+selectScatterTarget gid rand valid = DGutils.getRandomTile (gid + rand) valid
 
-selectFrightenedTarget :: Int -> Ghost.Ghost -> Pacman.Pacman -> [(Int, Int)] -> (Int, Int)
-selectFrightenedTarget gid gh pman valid = DGutils.getRandomTile (gid + round (Ghost.timer gh)) awayTiles
+selectFrightenedTarget :: Int -> Int -> Pacman.Pacman -> [(Int, Int)] -> (Int, Int)
+selectFrightenedTarget gid rand pman valid = DGutils.getRandomTile (gid + rand) awayTiles
   where
     filterClose = \tile -> (dist tile (Pacman.position pman)) > 10
     awayTiles = (filter filterClose valid)
@@ -120,3 +120,4 @@ nextNspaces n (x, y) mov valid = if tileList == [] then (x, y) else last tileLis
       _ -> [(x,y)]
     foo = \tile -> elem tile valid
     tileList = filter foo posList
+

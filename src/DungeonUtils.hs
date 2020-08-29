@@ -1,7 +1,6 @@
 module DungeonUtils where
 
 import Constants
-import System.Random
 
 getNeighborTile :: (Int, Int) -> Movement -> (Int, Int)
 getNeighborTile (x, y) U = (x, y+1)
@@ -32,15 +31,7 @@ getSpace xs (px, py) =
     xs !! py !! px
 
 getRandomTile :: Int -> [(Int, Int)] -> (Int, Int)
-getRandomTile n tiles = tiles !! index
+getRandomTile rand tiles = tiles !! index
   where
     limit = length tiles
-    (rand, _) = random (mkStdGen n)
     index = rand `mod` limit
-
--- TODO: Why this function doesn work?
--- getRandomTile :: Int -> [(Int, Int)] -> (Int, Int)
--- getRandomTile n tiles = tiles !! index
---   where
---     limit = length tiles
---     (index, _) = (randomR (1, limit) (mkStdGen n))

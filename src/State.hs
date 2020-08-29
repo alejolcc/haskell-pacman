@@ -1,6 +1,7 @@
 module State where
 
 import IA
+import System.Random
 import qualified Data.Sequence as Seq
 import qualified Data.Maybe as Maybe
 import qualified Data.List as List
@@ -10,14 +11,6 @@ import qualified Pacman
 import qualified Ghost
 import Graphics.Gloss.Interface.IO.Game
 
-testdungeon :: Dungeon
-testdungeon = reverse [[Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall],[Wall,SuperPill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Wall,Wall,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Wall],[Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall],[Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall],[Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall],[Wall,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Wall,Wall,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Wall],[Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall],[Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall],[Wall,Pill,Pill,Pill,Pill,Pill,Pill,Wall,Wall,Pill,Pill,Pill,Pill,Wall,Wall,Pill,Pill,Pill,Pill,Wall,Wall,Pill,Pill,Pill,Pill,Pill,Pill,Wall],[Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Empty,Wall,Wall,Empty,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall],[Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Empty,Wall,Wall,Empty,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall],[Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall],[Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall],[Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall],[Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill],[Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall]]
-
-testWarps :: [((Int, Int), (Int, Int))]
-testWarps = [((-1, 1), (27, 1)), ((28, 1), (0, 1))]
-
-eTimer :: Float
-eTimer = 10
 
 data GameState = Game
   {
@@ -30,6 +23,7 @@ data GameState = Game
     warpsPos ::[((Int, Int), (Int, Int))],
     globalTimer :: Float,
     energizerTimer :: Float,
+    generator :: StdGen,
     config :: Config
   }
 
@@ -40,25 +34,6 @@ instance Show GameState where
     ++ "energizerTimer " ++ show (energizerTimer game) ++ "\n"
     ++ "Pacman "         ++ show (pacman game)         ++ "\n"
     ++ "Ghosts "         ++ show (ghosts game)         ++ " "
-
-initialState :: GameState
-initialState = Game
-  {
-    lifes = 3,
-    dungeon = testdungeon,
-    bufferMov = S,
-    ghosts = Seq.fromList [ghost0, ghost1, ghost2, ghost3],
-    pacman = Pacman.initialPacman (1, 1),
-    validPos = DGutils.getValidPos testdungeon,
-    warpsPos = testWarps,
-    globalTimer= 0,
-    energizerTimer = 0
-  }
-  where
-    ghost0 = Ghost.initialGhost 0 (12, 3)
-    ghost1 = Ghost.initialGhost 1 (13, 3)
-    ghost2 = Ghost.initialGhost 2 (14, 3)
-    ghost3 = Ghost.initialGhost 3 (15, 3)
 
 createInitialState :: Config -> GameState
 createInitialState config = Game
@@ -72,6 +47,7 @@ createInitialState config = Game
     warpsPos        = warpsPos',
     globalTimer     = 0,
     energizerTimer  = 0,
+    generator       = mkStdGen 3,
     config          = config
   }
   where
@@ -204,12 +180,13 @@ updateGhosts t game =
   enforceGhost . changeGhostMode . (updateGhostTimer t) . updateGhostPos . updateGhostDir $ game
 
 updateGhostDir :: GameState -> GameState
-updateGhostDir game = game{ghosts=ghosts'}
+updateGhostDir game = game{ghosts=ghosts', generator=generator'}
   where
     pman = pacman game
     valid = validPos game
+    (genRandom, generator') = random $ (generator game) :: (Int, StdGen)
     ghostSeq = ghosts game
-    update = \gid gh -> IA.updateGhost gid gh pman valid
+    update = \gid gh -> IA.updateGhost gid gh pman valid genRandom
     ghosts' = (Seq.mapWithIndex update ghostSeq)
 
 updateGhostPos :: GameState -> GameState

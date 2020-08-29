@@ -24,6 +24,9 @@ dgPosY = (-390)
 fps :: Int
 fps = 25
 
+eTimer :: Float
+eTimer = 10
+
 widthBox :: Float
 widthBox = 30
 
