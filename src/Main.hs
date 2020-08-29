@@ -4,24 +4,16 @@ import Canvas
 import LevelParser
 import Constants
 import System.Environment
-
-testdungeon :: Dungeon
-testdungeon = reverse [[Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall],[Wall,SuperPill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Wall,Wall,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Wall],[Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall],[Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall],[Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall],[Wall,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Wall,Wall,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Wall],[Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall],[Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Pill,Wall],[Wall,Pill,Pill,Pill,Pill,Pill,Pill,Wall,Wall,Pill,Pill,Pill,Pill,Wall,Wall,Pill,Pill,Pill,Pill,Wall,Wall,Pill,Pill,Pill,Pill,Pill,Pill,Wall],[Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Empty,Wall,Wall,Empty,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall],[Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Empty,Wall,Wall,Empty,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall],[Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall],[Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Empty,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall],[Wall,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Pill,Wall,Wall,Wall,Wall,Wall,Wall],[Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill,Pill],[Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall,Wall]]
-
-testWarps :: [((Int, Int), (Int, Int))]
-testWarps = [((-1, 1), (27, 1)), ((28, 1), (0, 1))]
+import System.Exit
+import Data.Char
+import System.IO.Unsafe
 
 main :: IO ()
 main = do
     args    <- getArgs
-    config  <- parseArgs "test.txt" defaultConfig
-
-    -- text <- readFile "test.txt"
-    -- let l = lines text
-    -- let res = map foo l
-    -- print res
+    config  <- parseArgs args defaultConfig
     print args
-    paint2 config
+    play config
 
 -- Config ---------------------------------------------------------------------
 
@@ -33,3 +25,34 @@ defaultConfig = Config
     configLifes   = 3,
     configWarps   = [((27, 14), (0, 14))]
   }
+
+parseArgs :: [String] -> Config -> IO Config
+parseArgs args config
+        | []    <- args
+        = return config
+
+        | "-lifes" : lifes : rest <- args
+        = parseArgs rest $ config { configLifes = read lifes }
+
+        | "-seed" : seed: rest <- args
+        , all isDigit seed
+        = parseArgs rest $ config { configRandSeed = read seed }
+
+        | "-level" : level : rest <- args
+        = parseArgs rest $ unsafePerformIO $ parse level config
+
+        | otherwise
+        = do    printUsage
+                exitWith $ ExitFailure 1
+
+printUsage :: IO ()
+printUsage
+ = putStr $ unlines
+        [ "quazicrystal [flags]"
+        , "    -fullscreen              Run full screen"
+        , "    -window     sizeX sizeY  Run in a window                     (default 800, 600)"
+        , "    -zoom       <NAT>        Pixel replication factor            (default 5)"
+        , "    -scale      <NAT>        Feature size of visualisation       (default 30)"
+        , "    -degree     <NAT>        Number waves to sum for each point  (default 5)"
+        , ""
+        , " You'll want to run this with +RTS -N to enable threads" ]

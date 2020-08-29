@@ -64,6 +64,6 @@ render game = return $ translate dgPosX dgPosY $ pictures ([dg, pacman'] ++ ghos
 update :: Float -> GameState -> IO GameState
 update seconds game = printState (updateState game seconds)
 
-paint2 config = playIO window background fps initState render handleKeys update
+play config = playIO window background fps initState render handleKeys update
   where
     initState = createInitialState config

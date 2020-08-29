@@ -8,6 +8,7 @@ type Dungeon = [[Space]]
 
 data Config = Config
    {
+     configRandSeed:: Int,
      configDungeon  :: Dungeon,
      configLifes    :: Int,
      configGhosts   :: [(Int, Int)],

@@ -4,30 +4,18 @@ import System.IO
 import Control.Monad
 import Data.Maybe
 import Data.List
-import Data.Char
+import Data.Char 
 import DungeonUtils(getSpace)
 
 import Constants
 
-parseArgs :: String -> Config -> IO Config
-parseArgs args config = do
+parse :: String -> Config -> IO Config
+parse args config = do
   configFile <- readFile args
   let configLines = lines configFile
-  let config' = foldr parseConfLine config configLines
+  let config' = foldr parseDungeon config configLines
   let config'' = plainDungeon . findWarps . findGhosts . findPacman $ config'
   return config''
-
-parseConfLine :: String -> Config -> Config
-parseConfLine str config
-  | "Lifes"  `isPrefixOf` str = parseLifes str config
-
-parseConfLine str config = parseDungeon str config
-
-parseLifes :: String -> Config -> Config
-parseLifes str config = config {configLifes = value'}
-  where
-    [_, value] = words str
-    value' = read value :: Int
 
 parseDungeon :: String -> Config -> Config
 parseDungeon str config = config {configDungeon = ((configDungeon config)++[(map f str)])}

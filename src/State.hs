@@ -47,7 +47,7 @@ createInitialState config = Game
     warpsPos        = warpsPos',
     globalTimer     = 0,
     energizerTimer  = 0,
-    generator       = mkStdGen 3,
+    generator       = mkStdGen seed,
     config          = config
   }
   where
@@ -57,6 +57,7 @@ createInitialState config = Game
     pacman'     = Pacman.initialPacman (configPacman config)
     validPos'   = DGutils.getValidPos dungeon'
     warpsPos'   = configWarps config
+    seed        = configRandSeed config
     createGhost = \(x, y) -> (Ghost.initialGhost x y)
 
 updateState :: GameState -> Float -> GameState
@@ -106,10 +107,16 @@ colPacmanGhost game = game'
 
 pacmanVsGhost :: Pacman.Pacman -> Ghost.Ghost -> GameState -> GameState
 pacmanVsGhost pman gh game = case Ghost.weak gh of
-                              False -> (createInitialState (config game)) {lifes=(lifes game) - 1, dungeon = (dungeon game)}
-                              True -> game {ghosts=ghosts'}
-                                where
-                                  ghosts' = Seq.update (Ghost.gid gh) (Ghost.setAlive gh False) (ghosts game)
+  True -> game {ghosts=ghosts'}
+    where
+      ghosts' = Seq.update (Ghost.gid gh) (Ghost.setAlive gh False) (ghosts game)
+
+  False -> game' {lifes=lifes', dungeon=dungeon', generator=mkStdGen seed'}
+    where
+      lifes' = (lifes game) - 1
+      dungeon' = dungeon game
+      seed' = (configRandSeed $ config game) * 2
+      game' = createInitialState $ config game
 
 getColision :: GameState -> Maybe Ghost.Ghost
 getColision game = ghost
