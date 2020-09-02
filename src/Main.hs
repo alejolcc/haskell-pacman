@@ -20,10 +20,9 @@ main = do
 defaultConfig :: Config
 defaultConfig = Config
   {
-    -- configDungeon = testdungeon,
     configDungeon = [],
     configLifes   = 3,
-    configWarps   = [((27, 14), (0, 14))]
+    configRandSeed= 42
   }
 
 parseArgs :: [String] -> Config -> IO Config
@@ -48,11 +47,9 @@ parseArgs args config
 printUsage :: IO ()
 printUsage
  = putStr $ unlines
-        [ "quazicrystal [flags]"
-        , "    -fullscreen              Run full screen"
-        , "    -window     sizeX sizeY  Run in a window                     (default 800, 600)"
-        , "    -zoom       <NAT>        Pixel replication factor            (default 5)"
-        , "    -scale      <NAT>        Feature size of visualisation       (default 30)"
-        , "    -degree     <NAT>        Number waves to sum for each point  (default 5)"
+        [ "haskell-pacman [flags]"
+        , "    -lifes      <NAT>        Lifes of the pacman"
+        , "    -seed       <NAT>        Initial seed for random generator"
+        , "    -level      <STRING>     Path to level file config"
         , ""
-        , " You'll want to run this with +RTS -N to enable threads" ]
+        ]

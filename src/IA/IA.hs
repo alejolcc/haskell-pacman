@@ -79,7 +79,7 @@ selectScatterTarget :: Int -> Int -> [(Int, Int)] -> (Int, Int)
 selectScatterTarget gid rand valid = DGutils.getRandomTile (gid + rand) valid
 
 selectFrightenedTarget :: Int -> Int -> Pacman.Pacman -> [(Int, Int)] -> (Int, Int)
-selectFrightenedTarget gid rand pman valid = DGutils.getRandomTile (gid + rand) awayTiles
+selectFrightenedTarget gid rand pman valid = DGutils.getRandomTile (gid + rand * rand) awayTiles
   where
     filterClose = \tile -> (dist tile (Pacman.position pman)) > 10
     awayTiles = (filter filterClose valid)
